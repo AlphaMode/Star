@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "star",
+  "version": "${version}",
+  "name": "Star",
+  "description": "",
+  "authors": [
+    "AlphaMode"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/star/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "me.alphamode.star.client.StarClient"
+    ],
+    "main": [
+      "me.alphamode.star.Star"
+    ]
+  },
+  "mixins": [
+    "star.mixins.json"
+  ],
+  "accessWidener": "star.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "fabric": "*",
+    "minecraft": "1.18.2"
+  }
+}
