@@ -10,4 +10,4 @@ extendable method net/minecraft/fluid/FlowableFluid method_15740 (Lnet/minecraft
 accessible method net/minecraft/fluid/FlowableFluid method_15744 (Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/block/BlockState;)V
 accessible method net/minecraft/fluid/FlowableFluid method_15747 (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)S
 
-accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z
+accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;Lnet/minecraft/fluid/FluidState;)Z

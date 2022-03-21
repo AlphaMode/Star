@@ -43,10 +43,11 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
     }
 
     @Override
-    public boolean renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
+    public boolean renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, FluidState fluidState) {
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
         if(fluid.getFlowDirection() == Direction.DOWN)
-            return super.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+            return super.renderFluid(pos, world, vertexConsumer, fluidState);
+        BlockState blockState = world.getBlockState(pos);
         boolean isInLava = fluidState.isIn(FluidTags.LAVA);
         Sprite[] sprites = isInLava ? FluidRenderHandlerRegistry.INSTANCE.get(Fluids.LAVA).getFluidSprites(world, pos, fluidState) : getFluidSprites(world, pos, fluidState);
         int fluidColor = isInLava ? 16777215 : BiomeColors.getWaterColor(world, pos);
@@ -65,13 +66,13 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
         FluidState westFluidState = westState.getFluidState();
         BlockState eastState = world.getBlockState(pos.offset(Direction.EAST));
         FluidState eastFluidState = eastState.getFluidState();
-        boolean isFluidTheSame = !isSameFluid(fluidState, downFluidState);
-        boolean renderBottomSide = shouldRenderSide(world, pos, fluidState, blockState, fluid.getFlowDirection(), upFluidState)
+        boolean isFluidTheSame = !isSameFluid(world, pos, Direction.DOWN, fluidState);
+        boolean renderBottomSide = shouldRenderSide(world, pos, fluidState, blockState, fluid.getFlowDirection())
                 && !isSideCovered(world, pos, fluid.getFlowDirection(), 0.8888889F, upState);
-        boolean renderNorthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.NORTH, northFluidState);
-        boolean renderSouthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.SOUTH, southFluidState);
-        boolean renderWestSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.WEST, westFluidState);
-        boolean renderEastSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.EAST, eastFluidState);
+        boolean renderNorthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.NORTH);
+        boolean renderSouthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.SOUTH);
+        boolean renderWestSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.WEST);
+        boolean renderEastSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.EAST);
         if (!isFluidTheSame && !renderBottomSide && !renderEastSide && !renderWestSide && !renderNorthSide && !renderSouthSide) {
             return false;
         } else {
