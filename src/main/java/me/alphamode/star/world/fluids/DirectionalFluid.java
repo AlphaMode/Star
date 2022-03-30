@@ -26,7 +26,7 @@ import net.minecraft.world.WorldView;
 import java.util.EnumMap;
 import java.util.Map;
 
-// TODO: Rewrite (Currently a vanila copy of FlowableFluid modified to support semi directional flow)
+// TODO: Rewrite (Currently a vanilla copy of FlowableFluid modified to support semi directional flow)
 public abstract class DirectionalFluid extends FlowableFluid {
     protected final Direction flowDirection;
 

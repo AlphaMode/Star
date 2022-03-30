@@ -339,9 +339,4 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
     private static boolean isSideCovered(BlockView blockView, BlockPos blockPos, Direction direction, float maxDeviation, BlockState blockState) {
         return isSideCovered(blockView, direction, maxDeviation, blockPos.offset(direction), blockState);
     }
-
-    private static boolean isOppositeSideCovered(BlockView world, BlockPos pos, BlockState state, Direction direction) {
-        return isSideCovered(world, direction.getOpposite(), 1.0F, pos, state);
-    }
-
 }
