@@ -39,7 +39,7 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
     }
 
     public UpsideDownFluidRenderer() {
-        super(WATER_STILL, WATER_FLOWING, WATER_OVERLAY, 0);
+        this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY);
     }
 
     @Override
