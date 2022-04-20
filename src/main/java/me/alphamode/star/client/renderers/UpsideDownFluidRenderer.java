@@ -42,6 +42,10 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
         this(stillTexture, flowingTexture, overlayTexture, -1);
     }
 
+    public UpsideDownFluidRenderer(int tint) {
+        this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY, tint);
+    }
+
     public UpsideDownFluidRenderer() {
         this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY);
     }
