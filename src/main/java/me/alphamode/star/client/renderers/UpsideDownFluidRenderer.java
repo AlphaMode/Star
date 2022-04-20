@@ -34,8 +34,12 @@ import static net.minecraft.client.render.block.FluidRenderer.shouldRenderSide;
  */
 public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
 
+    public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, Identifier overlayTexture, int tint) {
+        super(stillTexture, flowingTexture, overlayTexture, tint);
+    }
+
     public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, Identifier overlayTexture) {
-        super(stillTexture, flowingTexture, overlayTexture, -1);
+        this(stillTexture, flowingTexture, overlayTexture, -1);
     }
 
     public UpsideDownFluidRenderer() {
