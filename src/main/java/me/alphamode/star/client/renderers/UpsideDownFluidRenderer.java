@@ -57,7 +57,7 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
             return super.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
         boolean isInLava = fluidState.isIn(FluidTags.LAVA);
         Sprite[] sprites = isInLava ? FluidRenderHandlerRegistry.INSTANCE.get(Fluids.LAVA).getFluidSprites(world, pos, fluidState) : getFluidSprites(world, pos, fluidState);
-        int fluidColor = isInLava ? 16777215 : BiomeColors.getWaterColor(world, pos);
+        int fluidColor = getFluidColor(world, pos, fluidState);
         float r = (fluidColor >> 16 & 0xFF) / 255.0F;
         float g = (fluidColor >> 8 & 0xFF) / 255.0F;
         float b = (fluidColor & 0xFF) / 255.0F;
