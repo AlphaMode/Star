@@ -1,6 +1,5 @@
 package me.alphamode.star.client.models;
 
-import me.alphamode.star.events.client.ModelBakeEvent;
 import me.alphamode.star.events.client.UploadSpritesStitchCallback;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.block.Block;
@@ -16,19 +15,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A model registry to allow easy creation of connected textures models using a CTM format
+ */
 public class CTModelRegistry {
 
     private static final List<Block> registered = new ArrayList<>();
     private static final Map<Block, Sprite> cachedSpites = new HashMap<>();
 
     public static void init() {
-        ModelBakeEvent.ON_MODEL_BAKE.register((bakedModelManager, map, modelLoader) -> {
-            registered.forEach(block -> {
-                getAllBlockStateModelLocations(block).forEach(modelId -> {
-                    map.put(modelId, new ConnectedModel(map.get(modelId)));
-                });
-            });
-        });
         UploadSpritesStitchCallback.STITCH.register((data, spriteAtlasTexture) -> {
             for(Block block : registered) {
                 Identifier id = Registry.BLOCK.getId(block);
@@ -44,13 +39,18 @@ public class CTModelRegistry {
     }
 
     public static void registerCTModel(Block block) {
-        registered.add(block);
+        ModelSwapper.swapBlockModel(block, ConnectedModel::new);
     }
 
     public static Sprite getCTSprite(Block block) {
         return cachedSpites.get(block);
     }
 
+    /**
+     * Deprecated
+     * Moved to {@link ModelSwapper#getAllBlockStateModelLocations(Block)}
+     */
+    @Deprecated(forRemoval = true)
     public static List<ModelIdentifier> getAllBlockStateModelLocations(Block block) {
         List<ModelIdentifier> models = new ArrayList<>();
         Identifier blockRl = Registry.BLOCK.getId(block);

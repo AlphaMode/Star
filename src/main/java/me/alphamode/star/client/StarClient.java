@@ -1,6 +1,7 @@
 package me.alphamode.star.client;
 
 import me.alphamode.star.client.models.CTModelRegistry;
+import me.alphamode.star.client.models.ModelSwapper;
 import me.alphamode.star.client.renderers.UpsideDownFluidRenderer;
 import me.alphamode.star.world.fluids.DirectionalFluid;
 import net.fabricmc.api.ClientModInitializer;
@@ -18,6 +19,7 @@ public class StarClient implements ClientModInitializer {
             if(fluid instanceof DirectionalFluid directionalFluid && directionalFluid.useDefaultRenderer())
                 FluidRenderHandlerRegistry.INSTANCE.register(fluid, new UpsideDownFluidRenderer());
         });
+        ModelSwapper.init();
         CTModelRegistry.init();
     }
 }
