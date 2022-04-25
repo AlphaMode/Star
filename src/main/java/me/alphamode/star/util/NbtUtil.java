@@ -3,6 +3,10 @@ package me.alphamode.star.util;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * {@link net.minecraft.nbt.NbtHelper}
+ */
+@Deprecated(forRemoval = true)
 public class NbtUtil {
     public static BlockPos fromNbt(NbtCompound nbt) {
         return new BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
