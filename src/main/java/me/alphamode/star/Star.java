@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
@@ -16,6 +17,10 @@ import net.minecraft.util.registry.Registry;
 public class Star implements ModInitializer {
 
     public static final String MOD_ID = "star";
+
+    public static Identifier getResource(String path) {
+        return new Identifier(MOD_ID, path);
+    }
 
     @Override
     public void onInitialize() {

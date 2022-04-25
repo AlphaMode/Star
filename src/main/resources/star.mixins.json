@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "client.BakedModelManagerMixin",
-    "client.SpriteAtlasTextureMixin"
+    "client.SpriteAtlasTextureMixin",
+    "common.EntityMixin",
+    "common.ItemEntityMixin"
   ],
   "client": [
   ],
