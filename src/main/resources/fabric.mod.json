@@ -27,5 +27,10 @@
     "fabricloader": ">=0.13.3",
     "fabric": "*",
     "minecraft": "1.18.2"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1297": ["me/alphamode/star/extensions/EntityExtension"]
+    }
   }
 }

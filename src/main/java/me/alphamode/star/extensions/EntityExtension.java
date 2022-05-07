@@ -1,5 +1,9 @@
 package me.alphamode.star.extensions;
 
 public interface EntityExtension {
-    boolean isTouchingUpsideDownFluid();
+    default boolean isTouchingUpsideDownFluid() {
+        return false;
+    }
+
+    default void checkUpsideDownState() {}
 }
