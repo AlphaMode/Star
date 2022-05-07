@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity {
+public abstract class ItemEntityMixin extends Entity implements EntityExtension {
     public ItemEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }

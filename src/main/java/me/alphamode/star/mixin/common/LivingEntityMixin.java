@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+public abstract class LivingEntityMixin extends Entity implements EntityExtension {
     @Shadow public abstract Vec3d method_26317(double d, boolean bl, Vec3d vec3d);
 
     @Shadow public abstract boolean hasStatusEffect(StatusEffect effect);
