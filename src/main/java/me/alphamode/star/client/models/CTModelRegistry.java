@@ -40,6 +40,7 @@ public class CTModelRegistry {
 
     public static void registerCTModel(Block block) {
         ModelSwapper.swapBlockModel(block, ConnectedModel::new);
+        registered.add(block);
     }
 
     public static Sprite getCTSprite(Block block) {
