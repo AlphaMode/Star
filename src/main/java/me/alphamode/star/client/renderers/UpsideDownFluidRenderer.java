@@ -1,8 +1,10 @@
 package me.alphamode.star.client.renderers;
 
 import me.alphamode.star.world.fluids.DirectionalFluid;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
@@ -12,6 +14,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.tag.FluidTags;
@@ -24,7 +27,11 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Supplier;
+
+import static net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler.*;
 import static net.minecraft.client.render.block.FluidRenderer.isSameFluid;
 import static net.minecraft.client.render.block.FluidRenderer.shouldRenderSide;
 
@@ -32,18 +39,34 @@ import static net.minecraft.client.render.block.FluidRenderer.shouldRenderSide;
  * A Modified version of vanilla's fluid renderer to support
  * upside-down fluid rendering
  */
-public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
+public class UpsideDownFluidRenderer implements FluidRenderHandler {
+    protected final Supplier<Identifier> stillGetter, flowingGetter, overlayGetter;
+    protected final Sprite[] sprites;
 
-    public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, Identifier overlayTexture, int tint) {
-        super(stillTexture, flowingTexture, overlayTexture, tint);
+    protected final int tint;
+
+    public UpsideDownFluidRenderer(Supplier<Identifier> stillTexture, Supplier<Identifier> flowingTexture, Supplier<Identifier> overlayTexture, int tint) {
+        this.stillGetter = stillTexture;
+        this.flowingGetter = flowingTexture;
+        this.overlayGetter = overlayTexture;
+        this.sprites = new Sprite[overlayTexture == null ? 2 : 3];
+        this.tint = tint;
+    }
+
+    public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, int tint) {
+        this(() -> stillTexture, () -> flowingTexture, null, tint);
     }
 
     public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, Identifier overlayTexture) {
-        this(stillTexture, flowingTexture, overlayTexture, -1);
+        this(() -> stillTexture, () -> flowingTexture, () -> overlayTexture, -1);
+    }
+
+    public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture) {
+        this(() -> stillTexture, () -> flowingTexture, null, -1);
     }
 
     public UpsideDownFluidRenderer(int tint) {
-        this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY, tint);
+        this(() -> WATER_STILL, () -> WATER_FLOWING, () -> WATER_OVERLAY, tint);
     }
 
     public UpsideDownFluidRenderer() {
@@ -51,10 +74,23 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
     }
 
     @Override
+    public Sprite[] getFluidSprites(@Nullable BlockRenderView view, @Nullable BlockPos pos, FluidState state) {
+        return sprites;
+    }
+
+    @Override
+    public void reloadTextures(SpriteAtlasTexture textureAtlas) {
+        sprites[0] = textureAtlas.getSprite(stillGetter.get());
+        sprites[1] = textureAtlas.getSprite(flowingGetter.get());
+        if (overlayGetter != null)
+            sprites[2] = textureAtlas.getSprite(overlayGetter.get());
+    }
+
+    @Override
     public boolean renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
         if(fluid.getFlowDirection() == Direction.DOWN)
-            return super.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+            return ((FluidRenderHandlerRegistryImpl) FluidRenderHandlerRegistry.INSTANCE).renderFluid(pos, world, vertexConsumer, blockState, fluidState);
         boolean isInLava = fluidState.isIn(FluidTags.LAVA);
         Sprite[] sprites = isInLava ? FluidRenderHandlerRegistry.INSTANCE.get(Fluids.LAVA).getFluidSprites(world, pos, fluidState) : getFluidSprites(world, pos, fluidState);
         int fluidColor = getFluidColor(world, pos, fluidState);
@@ -260,7 +296,7 @@ public class UpsideDownFluidRenderer extends SimpleFluidRenderHandler {
                     this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, startU, endV, light);
                     this.vertex(vertexConsumer, startX, chunkY + 1 - y, startZ, red, blue, green, startU, ay, light);
                     this.vertex(vertexConsumer, endX, chunkY + 1 - y, endZ, red, blue, green, ap, ay, light);
-                    if (sprite2 != getFluidSprites(world, blockPos, fluidState)[2]) { // Render overlay (inside of the fluid)
+                    if (getFluidSprites(world, blockPos, fluidState).length == 3 && sprite2 != getFluidSprites(world, blockPos, fluidState)[2]) { // Render overlay (inside of the fluid)
                         this.vertex(vertexConsumer, endX, chunkY + 1 - y, endZ, red, blue, green, startU, ay, light);
                         this.vertex(vertexConsumer, startX, chunkY + 1 - y, startZ, red, blue, green, ap, ay, light);
                         this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, ap, ax, light);
