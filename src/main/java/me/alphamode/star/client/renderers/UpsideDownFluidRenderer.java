@@ -87,10 +87,12 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
     }
 
     @Override
-    public boolean renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
+    public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
-        if(fluid.getFlowDirection() == Direction.DOWN)
-            return ((FluidRenderHandlerRegistryImpl) FluidRenderHandlerRegistry.INSTANCE).renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+        if(fluid.getFlowDirection() == Direction.DOWN) {
+            ((FluidRenderHandlerRegistryImpl) FluidRenderHandlerRegistry.INSTANCE).renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+            return;
+        }
         boolean isInLava = fluidState.isIn(FluidTags.LAVA);
         Sprite[] sprites = isInLava ? FluidRenderHandlerRegistry.INSTANCE.get(Fluids.LAVA).getFluidSprites(world, pos, fluidState) : getFluidSprites(world, pos, fluidState);
         int fluidColor = getFluidColor(world, pos, fluidState);
@@ -116,10 +118,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         boolean renderSouthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.SOUTH, southFluidState);
         boolean renderWestSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.WEST, westFluidState);
         boolean renderEastSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.EAST, eastFluidState);
-        if (!isFluidTheSame && !renderBottomSide && !renderEastSide && !renderWestSide && !renderNorthSide && !renderSouthSide) {
-            return false;
-        } else {
-            boolean bl8 = false;
+        if (isFluidTheSame || renderBottomSide || renderEastSide || renderWestSide || renderNorthSide || renderSouthSide) {
             float downBrightness = world.getBrightness(Direction.DOWN, true);
             float upBrightness = world.getBrightness(Direction.UP, true);
             float northBrightness = world.getBrightness(Direction.NORTH, true);
@@ -147,7 +146,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
             double chunkZ = pos.getZ() & 15;
             float y = renderBottomSide ? 0.001F : 0.0F;
             if (isFluidTheSame /*&& !isSideCovered(world, pos, fluid.getFlowDirection().getOpposite(), Math.min(Math.min(northWestHeight, southWestHeight), Math.min(southEastHeight, northEastHeight)), downState)*/) {
-                bl8 = true;
                 northWestHeight -= 0.001F;
                 southWestHeight -= 0.001F;
                 southEastHeight -= 0.001F;
@@ -222,8 +220,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                 this.vertex(vertexConsumer, chunkX, chunkY + y + 1, chunkZ, ac, ae, ag, ab, af, aq);
                 this.vertex(vertexConsumer, chunkX, chunkY + y + 1, chunkZ + 1.0, ac, ae, ag, ab, ad, aq);
                 this.vertex(vertexConsumer, chunkX + 1.0, chunkY + y + 1, chunkZ + 1.0, ac, ae, ag, z, ad, aq);
-
-                bl8 = true;
             }
 
             int light = this.getLight(world, pos);
@@ -271,7 +267,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                 }
 
                 if (shouldRender && !isSideCovered(world, pos, direction, Math.max(sideY, endSideY), world.getBlockState(pos.offset(direction)))) {
-                    bl8 = true;
                     BlockPos blockPos = pos.offset(direction);
                     Sprite sprite2 = sprites[1];
                     if (!isInLava) {
@@ -304,8 +299,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                     }
                 }
             }
-
-            return bl8;
         }
     }
 
