@@ -145,7 +145,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
             double chunkX = pos.getX() & 15;
             double chunkY = pos.getY() & 15;
             double chunkZ = pos.getZ() & 15;
-            float y = renderBottomSide ? 0.001F : 0.0F;
+            float yOffset = renderBottomSide ? 0.001F : 0.0F;
             if (isFluidTheSame /*&& !isSideCovered(world, pos, fluid.getFlowDirection().getOpposite(), Math.min(Math.min(northWestHeight, southWestHeight), Math.min(southEastHeight, northEastHeight)), downState)*/) {
                 bl8 = true;
                 northWestHeight -= 0.001F;
@@ -218,10 +218,10 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                 float ac = downBrightness * r;
                 float ae = downBrightness * g;
                 float ag = downBrightness * b;
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + y + 1, chunkZ, ac, ae, ag, z, af, aq);
-                this.vertex(vertexConsumer, chunkX, chunkY + y + 1, chunkZ, ac, ae, ag, ab, af, aq);
-                this.vertex(vertexConsumer, chunkX, chunkY + y + 1, chunkZ + 1.0, ac, ae, ag, ab, ad, aq);
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + y + 1, chunkZ + 1.0, ac, ae, ag, z, ad, aq);
+                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + yOffset + 1, chunkZ, ac, ae, ag, z, af, aq);
+                this.vertex(vertexConsumer, chunkX, chunkY + yOffset + 1, chunkZ, ac, ae, ag, ab, af, aq);
+                this.vertex(vertexConsumer, chunkX, chunkY + yOffset + 1, chunkZ + 1.0, ac, ae, ag, ab, ad, aq);
+                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + yOffset + 1, chunkZ + 1.0, ac, ae, ag, z, ad, aq);
 
                 bl8 = true;
             }
@@ -294,11 +294,11 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
 
                     this.vertex(vertexConsumer, endX, chunkY + 1 - endSideY, endZ, red, blue, green, ap, ax, light);
                     this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, startU, endV, light);
-                    this.vertex(vertexConsumer, startX, chunkY + 1 - y, startZ, red, blue, green, startU, ay, light);
-                    this.vertex(vertexConsumer, endX, chunkY + 1 - y, endZ, red, blue, green, ap, ay, light);
+                    this.vertex(vertexConsumer, startX, chunkY + 1 - yOffset, startZ, red, blue, green, startU, ay, light);
+                    this.vertex(vertexConsumer, endX, chunkY + 1 - yOffset, endZ, red, blue, green, ap, ay, light);
                     if (getFluidSprites(world, blockPos, fluidState).length == 3 && sprite2 != getFluidSprites(world, blockPos, fluidState)[2]) { // Render overlay (inside of the fluid)
-                        this.vertex(vertexConsumer, endX, chunkY + 1 - y, endZ, red, blue, green, startU, ay, light);
-                        this.vertex(vertexConsumer, startX, chunkY + 1 - y, startZ, red, blue, green, ap, ay, light);
+                        this.vertex(vertexConsumer, endX, chunkY + 1 - yOffset, endZ, red, blue, green, startU, ay, light);
+                        this.vertex(vertexConsumer, startX, chunkY + 1 - yOffset, startZ, red, blue, green, ap, ay, light);
                         this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, ap, ax, light);
                         this.vertex(vertexConsumer, endX, chunkY + 1 - endSideY, endZ, red, blue, green, startU, endV, light);
                     }
