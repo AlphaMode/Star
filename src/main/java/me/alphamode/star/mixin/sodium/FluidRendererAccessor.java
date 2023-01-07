@@ -53,8 +53,5 @@ public interface FluidRendererAccessor {
     BlockPos.Mutable getScratchPos();
 
     @Accessor
-    Sprite getWaterOverlaySprite();
-
-    @Accessor
     LightPipelineProvider getLighters();
 }

@@ -13,6 +13,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelB
 import me.jellysquid.mods.sodium.client.render.pipeline.FluidRenderer;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
@@ -271,14 +272,15 @@ public class SodiumUpsideDownFluidRenderer {
 
                 Sprite sprite = sprites[1];
 
-                if (isWater) {
+                boolean isOverlay = false;
+
+                if (sprites.length > 2) {
                     BlockPos adjPos = fluidRenderer.getScratchPos().set(adjX, adjY, adjZ);
                     BlockState adjBlock = world.getBlockState(adjPos);
 
-                    if (!adjBlock.isOpaque() && !adjBlock.isAir()) {
-                        // ice, glass, stained glass, tinted glass
-                        sprite = fluidRenderer.getWaterOverlaySprite();
-
+                    if (FluidRenderHandlerRegistry.INSTANCE.isBlockTransparent(adjBlock.getBlock())) {
+                        sprite = sprites[2];
+                        isOverlay = true;
                     }
                 }
 
@@ -306,7 +308,7 @@ public class SodiumUpsideDownFluidRenderer {
                 buffers.getIndexBufferBuilder(facing)
                         .add(vertexStart, ModelQuadWinding.CLOCKWISE);
 
-                if (sprite != fluidRenderer.getWaterOverlaySprite()) {
+                if (!isOverlay) {
                     buffers.getIndexBufferBuilder(facing.getOpposite())
                             .add(vertexStart, ModelQuadWinding.COUNTERCLOCKWISE);
                 }
