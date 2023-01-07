@@ -12,6 +12,7 @@ repositories {
         name = "vram"
         url = "https://maven.vram.io/"
     }
+    maven { url = "https://api.modrinth.com/maven" }
 }
 
 dependencies {
@@ -24,6 +25,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 //    modImplementation "io.vram:frex-fabric-mc118:6.0.+"
+    modCompileOnly("maven.modrinth:sodium:mc1.18.2-0.4.1")
 }
 
 loom.accessWidenerPath = file("src/main/resources/star.accesswidener")

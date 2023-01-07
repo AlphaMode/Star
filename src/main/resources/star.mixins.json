@@ -9,7 +9,9 @@
     "client.SpriteAtlasTextureMixin",
     "common.EntityMixin",
     "common.ItemEntityMixin",
-    "common.LivingEntityMixin"
+    "common.LivingEntityMixin",
+    "sodium.FluidRendererAccessor",
+    "sodium.FluidRendererMixin"
   ],
   "client": [
   ],

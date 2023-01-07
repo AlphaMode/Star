@@ -1,5 +1,6 @@
 package me.alphamode.star.client;
 
+import me.alphamode.star.Star;
 import me.alphamode.star.client.models.CTModelRegistry;
 import me.alphamode.star.client.models.ModelSwapper;
 import me.alphamode.star.client.renderers.UpsideDownFluidRenderer;
@@ -21,5 +22,6 @@ public class StarClient implements ClientModInitializer {
         });
         ModelSwapper.init();
         CTModelRegistry.init();
+        FluidRenderHandlerRegistry.INSTANCE.register(Star.STILL, Star.FLOWING, new UpsideDownFluidRenderer());
     }
 }
