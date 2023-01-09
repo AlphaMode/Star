@@ -1,32 +1,43 @@
 package me.alphamode.star;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import me.alphamode.star.world.fluids.DirectionalFluid;
 import me.alphamode.star.world.fluids.TestFluid;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 @SuppressWarnings("UnstableApiUsage")
-public class Star implements ModInitializer {
+@Mod(Star.MOD_ID)
+public class Star {
 
     public static final String MOD_ID = "star";
 
-    public static Identifier getResource(String path) {
-        return new Identifier(MOD_ID, path);
+    public static ResourceLocation getResource(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 
-    public static final DirectionalFluid STILL = Registry.register(Registry.FLUID, getResource("test_still"), new TestFluid.Still());
-    public static final DirectionalFluid FLOWING = Registry.register(Registry.FLUID, getResource("test_flowing"), new TestFluid.Flowing());
+    public static final Supplier<DirectionalFluid> STILL = Suppliers.memoize(TestFluid.Still::new);
+    public static final Supplier<DirectionalFluid> FLOWING = Suppliers.memoize(TestFluid.Still::new);
 
-    public static final Block FLUID = Registry.register(Registry.BLOCK, getResource("test_fluid"), new FluidBlock(STILL, FabricBlockSettings.copy(Blocks.WATER)));
+    public static final Supplier<Block> FLUID = Suppliers.memoize(() -> new LiquidBlock(STILL.get(), BlockBehaviour.Properties.copy(Blocks.WATER)));
 
-    @Override
-    public void onInitialize() {
+    public Star() {
+        var bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.addListener(this::registerTestFluids);
+    }
 
+    public void registerTestFluids(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.FLUIDS, getResource("test_still"), STILL::get);
+        event.register(ForgeRegistries.Keys.FLUIDS, getResource("test_flowing"), FLOWING::get);
+        event.register(ForgeRegistries.Keys.BLOCKS, getResource("test_fluid"), FLUID::get);
     }
 }

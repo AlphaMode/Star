@@ -2,13 +2,10 @@ package me.alphamode.star.mixin.common;
 
 import me.alphamode.star.data.StarTags;
 import me.alphamode.star.extensions.EntityExtension;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.TagKey;
-import net.minecraft.world.World;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,23 +23,23 @@ public class EntityMixin implements EntityExtension {
     }
 
     @Shadow
-    public boolean updateMovementInFluid(TagKey<Fluid> tag, double speed) {
+    public boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> tag, double speed) {
         throw new RuntimeException();
     }
 
-    @Shadow protected boolean firstUpdate;
+    @Shadow protected boolean firstTick;
 
     @Shadow
-    protected void onSwimmingStart() {
+    protected void doWaterSplashEffect() {
     }
 
     @Shadow
-    public void onLanding() {
+    public void resetFallDistance() {
 
     }
 
     @Shadow
-    public void extinguish() {
+    public void clearFire() {
     }
 
     @Unique
@@ -57,27 +54,27 @@ public class EntityMixin implements EntityExtension {
     @Unique
     @Override
     public void checkUpsideDownState() {
-        if (this.getVehicle() instanceof BoatEntity) {
+        if (this.getVehicle() instanceof Boat) {
             this.touchingUpsideDownFluid = false;
-        } else if (this.updateMovementInFluid(StarTags.Fluids.UPSIDE_DOWN_FLUID, -0.014)) {
-            if (!this.touchingUpsideDownFluid && !this.firstUpdate) {
-                this.onSwimmingStart();
+        } else if (this.updateFluidHeightAndDoFluidPushing(StarTags.Fluids.UPSIDE_DOWN_FLUID, -0.014)) {
+            if (!this.touchingUpsideDownFluid && !this.firstTick) {
+                this.doWaterSplashEffect();
             }
 
-            this.onLanding();
+            this.resetFallDistance();
             this.touchingUpsideDownFluid = true;
-            this.extinguish();
+            this.clearFire();
         } else {
             this.touchingUpsideDownFluid = false;
         }
     }
 
-    @Inject(method = "updateWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;checkWaterState()V"), cancellable = true)
+    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;updateInWaterStateAndDoWaterCurrentPushing()V"), cancellable = true)
     public void star$upsideDownFluidCheck(CallbackInfoReturnable<Boolean> cir) {
         checkUpsideDownState();
     }
 
-    @Inject(method = "updateWaterState", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At("RETURN"), cancellable = true)
     public void star$fixReturn(CallbackInfoReturnable<Boolean> cir) {
         if(!cir.getReturnValue() && isTouchingUpsideDownFluid())
             cir.setReturnValue(true);

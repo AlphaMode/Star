@@ -1,14 +1,15 @@
 package me.alphamode.star.world.fluids;
 
 import me.alphamode.star.Star;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.state.StateManager;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.fluids.FluidType;
 
 public abstract class TestFluid extends StarFluid {
     public TestFluid() {
@@ -17,38 +18,43 @@ public abstract class TestFluid extends StarFluid {
 
     @Override
     public Fluid getFlowing() {
-        return Star.FLOWING;
+        return Star.FLOWING.get();
     }
 
     @Override
-    public Fluid getStill() {
-        return Star.STILL;
+    public Fluid getSource() {
+        return Star.STILL.get();
     }
 
     @Override
-    public Item getBucketItem() {
+    public Item getBucket() {
         return Items.BUCKET;
     }
 
     @Override
-    protected BlockState toBlockState(FluidState state) {
-        return Star.FLUID.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
+    protected BlockState createLegacyBlock(FluidState state) {
+        return Star.FLUID.get().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
+    }
+
+    @Override
+    public FluidType getFluidType() {
+        return new FluidType(FluidType.Properties.create());
     }
 
     public static class Flowing extends TestFluid {
         public Flowing() {
         }
 
-        protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder) {
-            super.appendProperties(builder);
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
             builder.add(LEVEL);
         }
 
-        public int getLevel(FluidState state) {
-            return state.get(LEVEL);
+        public int getAmount(FluidState state) {
+            return state.getValue(LEVEL);
         }
 
-        public boolean isStill(FluidState state) {
+        public boolean isSource(FluidState state) {
             return false;
         }
     }
@@ -57,11 +63,11 @@ public abstract class TestFluid extends StarFluid {
         public Still() {
         }
 
-        public int getLevel(FluidState state) {
+        public int getAmount(FluidState state) {
             return 8;
         }
 
-        public boolean isStill(FluidState state) {
+        public boolean isSource(FluidState state) {
             return true;
         }
     }

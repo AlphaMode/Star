@@ -1,15 +1,15 @@
 package me.alphamode.star.world.fluids;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 public abstract class StarFluid extends DirectionalFluid {
     public StarFluid(Direction flowDirection) {
@@ -17,43 +17,43 @@ public abstract class StarFluid extends DirectionalFluid {
     }
 
     @Override
-    public boolean matchesType(Fluid fluid) {
-        return fluid == getStill() || fluid == getFlowing();
+    public boolean isSame(Fluid fluid) {
+        return fluid == getSource() || fluid == getFlowing();
     }
 
     @Override
-    protected boolean isInfinite() {
+    protected boolean canConvertToSource() {
         return false;
     }
 
     @Override
-    protected void beforeBreakingBlock(WorldAccess world, BlockPos pos, BlockState state) {
+    protected void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state) {
         final BlockEntity blockEntity = state.hasBlockEntity() ? world.getBlockEntity(pos) : null;
-        Block.dropStacks(state, world, pos, blockEntity);
+        Block.dropResources(state, world, pos, blockEntity);
     }
 
     @Override
-    protected boolean canBeReplacedWith(FluidState fluidState, BlockView blockView, BlockPos blockPos, Fluid fluid, Direction direction) {
+    protected boolean canBeReplacedWith(FluidState fluidState, BlockGetter blockView, BlockPos blockPos, Fluid fluid, Direction direction) {
         return false;
     }
 
     @Override
-    protected int getFlowSpeed(WorldView worldView) {
+    protected int getSlopeFindDistance(LevelReader worldView) {
         return 4;
     }
 
     @Override
-    protected int getLevelDecreasePerBlock(WorldView worldView) {
+    protected int getDropOff(LevelReader worldView) {
         return 1;
     }
 
     @Override
-    public int getTickRate(WorldView worldView) {
+    public int getTickDelay(LevelReader worldView) {
         return 5;
     }
 
     @Override
-    protected float getBlastResistance() {
+    protected float getExplosionResistance() {
         return 100.0F;
     }
 }

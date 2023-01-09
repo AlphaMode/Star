@@ -1,43 +1,54 @@
 package me.alphamode.star.world.block.entity;
 
-import me.alphamode.star.transfer.FluidTank;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FluidTankBlockEntity extends BlockEntity implements Transferable<FluidVariant> {
+public class FluidTankBlockEntity extends BlockEntity {
 
     protected FluidTank tank;
+    private LazyOptional<FluidTank> tankOptional;
 
-    public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, long initialCapacity) {
+    public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int initialCapacity) {
         this(type, pos, state, new FluidTank(initialCapacity));
     }
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, FluidTank tank) {
         super(type, pos, state);
         this.tank = tank;
+        this.tankOptional = LazyOptional.of(() -> this.tank);
     }
 
     @Override
-    public Storage<FluidVariant> getStorage(Direction direction) {
-        return tank;
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        this.tankOptional.invalidate();
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        tank.variant = FluidVariant.fromNbt(nbt.getCompound("variant"));
-        tank.amount = nbt.getLong("amount");
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER)
+            return tankOptional.cast();
+        return super.getCapability(cap, side);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        nbt.put("variant", tank.getResource().toNbt());
-        nbt.putLong("amount", tank.getAmount());
+    public void load(CompoundTag nbt) {
+        tank.readFromNBT(nbt);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag nbt) {
+        tank.writeToNBT(nbt);
     }
 }

@@ -4,14 +4,10 @@
   "package": "me.alphamode.star.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "client.BakedModelManagerMixin",
     "client.ClientPlayerEntityMixin",
-    "client.SpriteAtlasTextureMixin",
     "common.EntityMixin",
     "common.ItemEntityMixin",
-    "common.LivingEntityMixin",
-    "sodium.FluidRendererAccessor",
-    "sodium.FluidRendererMixin"
+    "common.LivingEntityMixin"
   ],
   "client": [
   ],

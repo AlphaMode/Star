@@ -1,0 +1,20 @@
+modLoader="javafml" #mandatory
+# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
+loaderVersion="[43,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="MIT"
+# A URL to refer people to when problems occur with this mod
+issueTrackerURL="https://github.com/AlphaMode/PortableTables/issues" #optional
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]] #mandatory
+modId="star" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="Star" #mandatory
+authors="AlphaMode" #optional
+description='''
+'''
+[[dependencies.star]]
+modId="forge"
+mandatory=true
+versionRange="[43.1.1,)"
+ordering="NONE"
+side="BOTH"
