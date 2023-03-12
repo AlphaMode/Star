@@ -11,3 +11,6 @@ accessible method net/minecraft/fluid/FlowableFluid method_15744 (Lnet/minecraft
 accessible method net/minecraft/fluid/FlowableFluid method_15747 (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)S
 
 accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z
+
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
+accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask$RenderData
