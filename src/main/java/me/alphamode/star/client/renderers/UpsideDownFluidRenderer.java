@@ -68,7 +68,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
     }
 
     public UpsideDownFluidRenderer() {
-        this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY);
+        this(LAVA_STILL, LAVA_FLOWING, WATER_OVERLAY);
     }
 
     @Override
@@ -300,33 +300,33 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         }
     }
 
-    private float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos) {
+    public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos) {
         BlockState blockState = blockRenderView.getBlockState(blockPos);
-        return this.getFluidHeight(blockRenderView, fluid, blockPos, blockState, blockState.getFluidState());
+        return getFluidHeight(blockRenderView, fluid, blockPos, blockState, blockState.getFluidState());
     }
 
-    private float getHeightToRenderFluid(BlockRenderView blockRenderView, DirectionalFluid fluid, float f, float g, float h, BlockPos blockPos) {
+    public static float getHeightToRenderFluid(BlockRenderView blockRenderView, DirectionalFluid fluid, float f, float g, float h, BlockPos blockPos) {
         if (!(h >= 1.0F) && !(g >= 1.0F)) {
             float[] fs = new float[2];
             if (h > 0.0F || g > 0.0F) {
-                float i = this.getFluidHeight(blockRenderView, fluid, blockPos);
+                float i = getFluidHeight(blockRenderView, fluid, blockPos);
                 if (i >= 1.0F) {
                     return 1.0F;
                 }
 
-                this.offsetHeight(fs, i);
+                offsetHeight(fs, i);
             }
 
-            this.offsetHeight(fs, f);
-            this.offsetHeight(fs, h);
-            this.offsetHeight(fs, g);
+            offsetHeight(fs, f);
+            offsetHeight(fs, h);
+            offsetHeight(fs, g);
             return fs[0] / fs[1];
         } else {
             return 1.0F;
         }
     }
 
-    private void offsetHeight(float[] fs, float f) {
+    public static void offsetHeight(float[] fs, float f) {
         if (f >= 0.8F) {
             fs[0] += f * 10.0F;
             fs[1] += 10.0F;
@@ -337,7 +337,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
 
     }
 
-    private float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
+    public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
         if (fluid.matchesType(fluidState.getFluid())) {
             BlockState blockState2 = blockRenderView.getBlockState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
             return fluid.matchesType(blockState2.getFluidState().getFluid()) ? 1.0F : fluidState.getHeight();
@@ -346,7 +346,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         }
     }
 
-    private int getLight(BlockRenderView world, BlockPos pos) {
+    public static int getLight(BlockRenderView world, BlockPos pos) {
         int i = WorldRenderer.getLightmapCoordinates(world, pos);
         int j = WorldRenderer.getLightmapCoordinates(world, pos.up());
         int k = i & (LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE | 15);
@@ -370,7 +370,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         }
     }
 
-    private static boolean isSideCovered(BlockView blockView, BlockPos blockPos, Direction direction, float maxDeviation, BlockState blockState) {
+    public static boolean isSideCovered(BlockView blockView, BlockPos blockPos, Direction direction, float maxDeviation, BlockState blockState) {
         return isSideCovered(blockView, direction, maxDeviation, blockPos.offset(direction), blockState);
     }
 
