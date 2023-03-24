@@ -305,11 +305,11 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         return getFluidHeight(blockRenderView, fluid, blockPos, blockState, blockState.getFluidState());
     }
 
-    public static float getHeightToRenderFluid(BlockRenderView blockRenderView, DirectionalFluid fluid, float f, float g, float h, BlockPos blockPos) {
-        if (!(h >= 1.0F) && !(g >= 1.0F)) {
+    public static float getHeightToRenderFluid(BlockRenderView world, DirectionalFluid fluid, float fluidHeight, float fluidHeightX, float fluidHeightY, BlockPos blockPos) {
+        if (!(fluidHeightY >= 1.0F) && !(fluidHeightX >= 1.0F)) {
             float[] fs = new float[2];
-            if (h > 0.0F || g > 0.0F) {
-                float i = getFluidHeight(blockRenderView, fluid, blockPos);
+            if (fluidHeightY > 0.0F || fluidHeightX > 0.0F) {
+                float i = getFluidHeight(world, fluid, blockPos);
                 if (i >= 1.0F) {
                     return 1.0F;
                 }
@@ -317,9 +317,9 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                 offsetHeight(fs, i);
             }
 
-            offsetHeight(fs, f);
-            offsetHeight(fs, h);
-            offsetHeight(fs, g);
+            offsetHeight(fs, fluidHeight);
+            offsetHeight(fs, fluidHeightY);
+            offsetHeight(fs, fluidHeightX);
             return fs[0] / fs[1];
         } else {
             return 1.0F;
@@ -334,7 +334,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
             fs[0] += f;
             fs[1]++;
         }
-
     }
 
     public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
