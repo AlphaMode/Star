@@ -12,7 +12,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements EntityExtension {
-    @Shadow public abstract Vec3d method_26317(double d, boolean bl, Vec3d vec3d);
+    @Shadow public abstract Vec3d applyFluidMovingSpeed(double d, boolean bl, Vec3d vec3d);
 
     @Shadow public abstract boolean hasStatusEffect(StatusEffect effect);
 
@@ -52,7 +52,7 @@ public abstract class LivingEntityMixin extends Entity implements EntityExtensio
         }
     }
 
-    @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;swimUpward(Lnet/minecraft/tag/TagKey;)V", ordinal = 0))
+    @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;swimUpward(Lnet/minecraft/registry/tag/TagKey;)V", ordinal = 0))
     public void star$swim(CallbackInfo ci) {
         swimUpward(StarTags.Fluids.UPSIDE_DOWN_FLUID);
     }
@@ -85,7 +85,7 @@ public abstract class LivingEntityMixin extends Entity implements EntityExtensio
                 vec3d = new Vec3d(vec3d.x, 0.2, vec3d.z);
             }
             this.setVelocity(vec3d.multiply(f, 0.8f, f));
-            Vec3d vec3d2 = this.method_26317(d, bl, this.getVelocity());
+            Vec3d vec3d2 = this.applyFluidMovingSpeed(d, bl, this.getVelocity());
             this.setVelocity(vec3d2);
             if (this.horizontalCollision && this.doesNotCollide(vec3d2.x, vec3d2.y + (double)0.6f - this.getY() + entityY, vec3d2.z)) {
                 this.setVelocity(vec3d2.x, 0.3f, vec3d2.z);

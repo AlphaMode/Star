@@ -5,8 +5,8 @@ import net.minecraft.block.Block;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class ModelSwapper {
 
     public static List<ModelIdentifier> getAllBlockStateModelLocations(Block block) {
         List<ModelIdentifier> models = new ArrayList<>();
-        Identifier blockRl = Registry.BLOCK.getId(block);
+        Identifier blockRl = Registries.BLOCK.getId(block);
         block.getStateManager()
                 .getStates()
                 .forEach(state -> {

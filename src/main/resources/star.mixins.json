@@ -6,7 +6,6 @@
   "mixins": [
     "client.BakedModelManagerMixin",
     "client.ClientPlayerEntityMixin",
-    "client.SpriteAtlasTextureMixin",
     "common.EntityMixin",
     "common.ItemEntityMixin",
     "common.LivingEntityMixin",

@@ -5,9 +5,9 @@ accessible method net/minecraft/fluid/FlowableFluid isMatchingAndStill (Lnet/min
 accessible method net/minecraft/fluid/FlowableFluid canFill (Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/Fluid;)Z
 accessible method net/minecraft/fluid/FlowableFluid receivesFlow (Lnet/minecraft/util/math/Direction;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z
 accessible method net/minecraft/fluid/FlowableFluid canFlowThrough (Lnet/minecraft/world/BlockView;Lnet/minecraft/fluid/Fluid;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)Z
-extendable method net/minecraft/fluid/FlowableFluid method_15736 (Lnet/minecraft/world/BlockView;Lnet/minecraft/fluid/Fluid;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z
-extendable method net/minecraft/fluid/FlowableFluid method_15740 (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)I
-accessible method net/minecraft/fluid/FlowableFluid method_15744 (Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/block/BlockState;)V
+extendable method net/minecraft/fluid/FlowableFluid canFlowDownTo (Lnet/minecraft/world/BlockView;Lnet/minecraft/fluid/Fluid;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z
+extendable method net/minecraft/fluid/FlowableFluid countNeighboringSources (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)I
+accessible method net/minecraft/fluid/FlowableFluid flowToSides (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/block/BlockState;)V
 accessible method net/minecraft/fluid/FlowableFluid method_15747 (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)S
 
 accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z

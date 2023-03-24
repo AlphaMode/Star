@@ -8,8 +8,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Star implements ModInitializer {
@@ -20,10 +21,10 @@ public class Star implements ModInitializer {
         return new Identifier(MOD_ID, path);
     }
 
-    public static final DirectionalFluid STILL = Registry.register(Registry.FLUID, getResource("test_still"), new TestFluid.Still());
-    public static final DirectionalFluid FLOWING = Registry.register(Registry.FLUID, getResource("test_flowing"), new TestFluid.Flowing());
+    public static final DirectionalFluid STILL = Registry.register(Registries.FLUID, getResource("test_still"), new TestFluid.Still());
+    public static final DirectionalFluid FLOWING = Registry.register(Registries.FLUID, getResource("test_flowing"), new TestFluid.Flowing());
 
-    public static final Block FLUID = Registry.register(Registry.BLOCK, getResource("test_fluid"), new FluidBlock(STILL, FabricBlockSettings.copy(Blocks.WATER)));
+    public static final Block FLUID = Registry.register(Registries.BLOCK, getResource("test_fluid"), new FluidBlock(STILL, FabricBlockSettings.copy(Blocks.WATER)));
 
     @Override
     public void onInitialize() {

@@ -10,7 +10,7 @@ import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadWinding;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.pipeline.FluidRenderer;
+import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.FluidRenderer;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -18,7 +18,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -141,8 +141,8 @@ public class SodiumUpsideDownFluidRenderer {
 
             float uAvg = (u1 + u2 + u3 + u4) / 4.0F;
             float vAvg = (v1 + v2 + v3 + v4) / 4.0F;
-            float s1 = (float) sprites[0].getWidth() / (sprites[0].getMaxU() - sprites[0].getMinU());
-            float s2 = (float) sprites[0].getHeight() / (sprites[0].getMaxV() - sprites[0].getMinV());
+            float s1 = (float) sprites[0].getContents().getWidth() / (sprites[0].getMaxU() - sprites[0].getMinU());
+            float s2 = (float) sprites[0].getContents().getHeight() / (sprites[0].getMaxV() - sprites[0].getMinV());
             float s3 = 4.0F / Math.max(s2, s1);
 
             u1 = MathHelper.lerp(s3, u1, uAvg);
@@ -161,16 +161,12 @@ public class SodiumUpsideDownFluidRenderer {
             fluidRenderer.callSetVertex(quad, 2, 1.0F, 1 - h3, 1.0F, u3, v3);
             fluidRenderer.callSetVertex(quad, 3, 1.0F, 1 - h4, 0.0f, u4, v4);
 
-            fluidRenderer.callCalculateQuadColors(quad, world, pos, lighter, fluid.getFlowDirection().getOpposite(), 1.0F, colorizer, fluidState);
+            fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection().getOpposite(), 1.0F, colorizer, fluidState);
 
-            int vertexStart = fluidRenderer.callWriteVertices(buffers, offset, quad);
-
-            buffers.getIndexBufferBuilder(facing)
-                    .add(vertexStart, ModelQuadWinding.COUNTERCLOCKWISE);
+            fluidRenderer.callWriteQuad(buffers, offset, quad, facing, ModelQuadWinding.COUNTERCLOCKWISE);
 
             if (fluidState.method_15756(world, fluidRenderer.getScratchPos().set(posX, posY + 1, posZ))) {
-                buffers.getIndexBufferBuilder(ModelQuadFacing.UP)
-                        .add(vertexStart, ModelQuadWinding.CLOCKWISE);
+                fluidRenderer.callWriteQuad(buffers, offset, quad, ModelQuadFacing.DOWN, ModelQuadWinding.COUNTERCLOCKWISE);
             }
 
             rendered = true;
@@ -191,12 +187,9 @@ public class SodiumUpsideDownFluidRenderer {
             fluidRenderer.callSetVertex(quad, 2, 1.0F, yOffset, 0.0f, maxU, minV);
             fluidRenderer.callSetVertex(quad, 3, 1.0F, yOffset, 1.0F, maxU, maxV);
 
-            fluidRenderer.callCalculateQuadColors(quad, world, pos, lighter, fluid.getFlowDirection(), 1.0F, colorizer, fluidState);
+            fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection(), 1.0F, colorizer, fluidState);
 
-            int vertexStart = fluidRenderer.callWriteVertices(buffers, offset, quad);
-
-            buffers.getIndexBufferBuilder(ModelQuadFacing.UP)
-                    .add(vertexStart, ModelQuadWinding.COUNTERCLOCKWISE);
+            fluidRenderer.callWriteQuad(buffers, offset, quad, ModelQuadFacing.DOWN, ModelQuadWinding.CLOCKWISE);
 
             rendered = true;
         }
@@ -301,16 +294,12 @@ public class SodiumUpsideDownFluidRenderer {
 
                 ModelQuadFacing facing = ModelQuadFacing.fromDirection(dir);
 
-                fluidRenderer.callCalculateQuadColors(quad, world, pos, lighter, dir, br, colorizer, fluidState);
+                fluidRenderer.callUpdateQuad(quad, world, pos, lighter, dir, br, colorizer, fluidState);
 
-                int vertexStart = fluidRenderer.callWriteVertices(buffers, offset, quad);
-
-                buffers.getIndexBufferBuilder(facing)
-                        .add(vertexStart, ModelQuadWinding.CLOCKWISE);
+                fluidRenderer.callWriteQuad(buffers, offset, quad, facing, ModelQuadWinding.CLOCKWISE);
 
                 if (!isOverlay) {
-                    buffers.getIndexBufferBuilder(facing.getOpposite())
-                            .add(vertexStart, ModelQuadWinding.COUNTERCLOCKWISE);
+                    fluidRenderer.callWriteQuad(buffers, offset, quad, facing.getOpposite(), ModelQuadWinding.COUNTERCLOCKWISE);
                 }
 
                 rendered = true;

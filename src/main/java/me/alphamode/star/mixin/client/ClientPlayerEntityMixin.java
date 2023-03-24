@@ -5,10 +5,8 @@ import me.alphamode.star.extensions.EntityExtension;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +18,8 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements En
 
     @Shadow public Input input;
 
-    public ClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile, @Nullable PlayerPublicKey publicKey) {
-        super(world, pos, yaw, profile, publicKey);
+    public ClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
+        super(world, pos, yaw, profile);
     }
 
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isFallFlying()Z"))

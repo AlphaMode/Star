@@ -5,10 +5,11 @@ import me.jellysquid.mods.sodium.client.model.light.LightPipelineProvider;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadViewMutable;
 import me.jellysquid.mods.sodium.client.model.quad.blender.ColorSampler;
+import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
+import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadWinding;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.pipeline.FluidRenderer;
+import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.FluidRenderer;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
@@ -38,10 +39,7 @@ public interface FluidRendererAccessor {
     ColorSampler<FluidState> callCreateColorProviderAdapter(FluidRenderHandler handler);
 
     @Invoker
-    void callCalculateQuadColors(ModelQuadView quad, BlockRenderView world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness, ColorSampler<FluidState> colorSampler, FluidState fluidState);
-
-    @Invoker
-    int callWriteVertices(ChunkModelBuilder builder, BlockPos offset, ModelQuadView quad);
+    void callUpdateQuad(ModelQuadView quad, BlockRenderView world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness, ColorSampler<FluidState> colorSampler, FluidState fluidState);
 
     @Invoker
     void callSetVertex(ModelQuadViewMutable quad, int i, float x, float y, float z, float u, float v);
@@ -54,4 +52,7 @@ public interface FluidRendererAccessor {
 
     @Accessor
     LightPipelineProvider getLighters();
+
+    @Invoker
+    void callWriteQuad(ChunkModelBuilder builder, BlockPos offset, ModelQuadView quad, ModelQuadFacing facing, ModelQuadWinding winding);
 }

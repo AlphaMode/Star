@@ -1,14 +1,11 @@
 package me.alphamode.star.client.models;
 
-import me.alphamode.star.events.client.UploadSpritesStitchCallback;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.block.Block;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,18 +21,12 @@ public class CTModelRegistry {
     private static final Map<Block, Sprite> cachedSpites = new HashMap<>();
 
     public static void init() {
-        UploadSpritesStitchCallback.STITCH.register((data, spriteAtlasTexture) -> {
-            for(Block block : registered) {
-                Identifier id = Registry.BLOCK.getId(block);
-                cachedSpites.putIfAbsent(block, spriteAtlasTexture.getSprite(new Identifier(id.getNamespace(), "block/" + id.getPath() + "_connected")));
-            }
-        });
-        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> {
-            for(Block block : registered) {
-                Identifier id = Registry.BLOCK.getId(block);
-                registry.register(new Identifier(id.getNamespace(), "block/" + id.getPath() + "_connected"));
-            }
-        });
+//        UploadSpritesStitchCallback.STITCH.register((data, spriteAtlasTexture) -> {
+//            for(Block block : registered) {
+//                Identifier id = Registries.BLOCK.getId(block);
+//                cachedSpites.putIfAbsent(block, spriteAtlasTexture.getSprite(new Identifier(id.getNamespace(), "block/" + id.getPath() + "_connected")));
+//            }
+//        });
     }
 
     public static void registerCTModel(Block block) {
@@ -54,7 +45,7 @@ public class CTModelRegistry {
     @Deprecated(forRemoval = true)
     public static List<ModelIdentifier> getAllBlockStateModelLocations(Block block) {
         List<ModelIdentifier> models = new ArrayList<>();
-        Identifier blockRl = Registry.BLOCK.getId(block);
+        Identifier blockRl = Registries.BLOCK.getId(block);
         block.getStateManager()
                 .getStates()
                 .forEach(state -> {
