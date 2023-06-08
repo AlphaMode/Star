@@ -59,7 +59,7 @@ public abstract class LivingEntityMixin extends Entity implements EntityExtensio
 
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void star$fluidMovement(Vec3d movementInput, CallbackInfo ci, double d, boolean bl) {
-        FluidState fluidState = this.world.getFluidState(this.getBlockPos());
+        FluidState fluidState = this.getWorld().getFluidState(this.getBlockPos());
         if (this.isTouchingUpsideDownFluid() && this.shouldSwimInFluids() && !this.canWalkOnFluid(fluidState)) {
             double entityY = this.getY();
             float f = this.isSprinting() ? 0.9f : this.getBaseMovementSpeedMultiplier();
@@ -68,7 +68,7 @@ public abstract class LivingEntityMixin extends Entity implements EntityExtensio
             if (h > 3.0f) {
                 h = 3.0f;
             }
-            if (!this.onGround) {
+            if (!this.isOnGround()) {
                 h *= 0.5f;
             }
             if (h > 0.0f) {

@@ -342,7 +342,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
             BlockState blockState2 = blockRenderView.getBlockState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
             return fluid.matchesType(blockState2.getFluidState().getFluid()) ? 1.0F : fluidState.getHeight();
         } else {
-            return !blockState.getMaterial().isSolid() ? 0.0F : -1.0F;
+            return !blockState.isSolid() ? 0.0F : -1.0F;
         }
     }
 

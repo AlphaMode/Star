@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
+import net.minecraft.block.IceBlock;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -21,7 +21,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
 import java.util.EnumMap;
@@ -52,7 +51,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
             float g = 0.0f;
             if (f == 0.0f) {
                 FluidState fluidState2;
-                if (!world.getBlockState(mutable).getMaterial().blocksMovement() && this.isEmptyOrThis(fluidState2 = world.getFluidState(mutable.move(flowDirection))) && (f = fluidState2.getHeight()) > 0.0f) {
+                if (this.isEmptyOrThis(fluidState2 = world.getFluidState(mutable.move(flowDirection))) && (f = fluidState2.getHeight()) > 0.0f) {
                     g = state.getHeight() - (f - 0.8888889f);
                 }
             } else if (f > 0.0f) {
@@ -84,10 +83,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         if (direction == flowDirection.getOpposite()) {
             return true;
         }
-        if (blockState.getMaterial() == Material.ICE) {
-            return false;
-        }
-        return blockState.isSideSolidFullSquare(world, pos, direction);
+        return !(blockState.getBlock() instanceof IceBlock) && blockState.isSideSolidFullSquare(world, pos, direction);
     }
 
     @Override
@@ -129,7 +125,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         if (this.isInfinite(world) && j >= 2) {
             BlockState blockState2 = world.getBlockState(pos.offset(flowDirection));
             FluidState fluidState2 = blockState2.getFluidState();
-            if (blockState2.getMaterial().isSolid() || this.isMatchingAndStill(fluidState2)) {
+            if (blockState2.isSolid() || this.isMatchingAndStill(fluidState2)) {
                 return this.getStill(false);
             }
         }
@@ -150,7 +146,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
             int k;
             if (direction2 == direction) continue;
             BlockPos blockPos3 = blockPos.offset(direction2);
-            short s2 = FlowableFluid.method_15747(blockPos2, blockPos3);
+            short s2 = FlowableFluid.packXZOffset(blockPos2, blockPos3);
             Pair pair = short2ObjectMap.computeIfAbsent(s2, s -> {
                 BlockState blockState1 = world.getBlockState(blockPos3);
                 return Pair.of(blockState1, blockState1.getFluidState());
@@ -203,7 +199,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         Short2BooleanOpenHashMap short2BooleanMap = new Short2BooleanOpenHashMap();
         for (Direction direction : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
             BlockPos blockPos = pos.offset(direction);
-            short s2 = FlowableFluid.method_15747(pos, blockPos);
+            short s2 = FlowableFluid.packXZOffset(pos, blockPos);
             Pair pair = short2ObjectMap.computeIfAbsent(s2, s -> {
                 BlockState blockState = world.getBlockState(blockPos);
                 return Pair.of(blockState, blockState.getFluidState());

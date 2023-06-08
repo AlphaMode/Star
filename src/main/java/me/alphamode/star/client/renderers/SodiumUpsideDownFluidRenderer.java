@@ -43,7 +43,7 @@ public class SodiumUpsideDownFluidRenderer {
             FluidState fluidStateUp = world.getFluidState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
             return fluid.matchesType(fluidStateUp.getFluid()) ? 1.0F : fluidState.getHeight();
         } else {
-            return !blockState.getMaterial().isSolid() ? 0.0F : -1.0F;
+            return !blockState.isSolid() ? 0.0F : -1.0F;
         }
     }
 
@@ -165,7 +165,7 @@ public class SodiumUpsideDownFluidRenderer {
 
             fluidRenderer.callWriteQuad(buffers, offset, quad, facing, ModelQuadWinding.COUNTERCLOCKWISE);
 
-            if (fluidState.method_15756(world, fluidRenderer.getScratchPos().set(posX, posY + 1, posZ))) {
+            if (fluidState.canFlowTo(world, fluidRenderer.getScratchPos().set(posX, posY + 1, posZ))) {
                 fluidRenderer.callWriteQuad(buffers, offset, quad, ModelQuadFacing.DOWN, ModelQuadWinding.COUNTERCLOCKWISE);
             }
 

@@ -8,6 +8,6 @@ accessible method net/minecraft/fluid/FlowableFluid canFlowThrough (Lnet/minecra
 extendable method net/minecraft/fluid/FlowableFluid canFlowDownTo (Lnet/minecraft/world/BlockView;Lnet/minecraft/fluid/Fluid;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z
 extendable method net/minecraft/fluid/FlowableFluid countNeighboringSources (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;)I
 accessible method net/minecraft/fluid/FlowableFluid flowToSides (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/block/BlockState;)V
-accessible method net/minecraft/fluid/FlowableFluid method_15747 (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)S
+accessible method net/minecraft/fluid/FlowableFluid packXZOffset (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)S
 
 accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z
