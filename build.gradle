@@ -25,7 +25,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 //    modImplementation "io.vram:frex-fabric-mc118:6.0.+"
-    modCompileOnly("maven.modrinth:sodium:mc1.19.4-0.4.10")
+    modImplementation("maven.modrinth:sodium:mc1.20.1-0.5.2")
 }
 
 loom.accessWidenerPath = file("src/main/resources/star.accesswidener")

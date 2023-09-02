@@ -1,14 +1,15 @@
 package me.alphamode.star.mixin.sodium;
 
+import me.jellysquid.mods.sodium.client.model.color.ColorProvider;
 import me.jellysquid.mods.sodium.client.model.light.LightPipeline;
 import me.jellysquid.mods.sodium.client.model.light.LightPipelineProvider;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadViewMutable;
-import me.jellysquid.mods.sodium.client.model.quad.blender.ColorSampler;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadWinding;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.FluidRenderer;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
+import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -26,6 +27,11 @@ public interface FluidRendererAccessor {
         throw new UnsupportedOperationException();
     }
 
+    @Invoker
+    static FluidRenderHandler callGetFluidRenderHandler(FluidState fluidState) {
+        throw new UnsupportedOperationException();
+    }
+
     @Accessor
     ModelQuadViewMutable getQuad();
 
@@ -36,10 +42,7 @@ public interface FluidRendererAccessor {
     boolean callIsSideExposed(BlockRenderView world, int x, int y, int z, Direction dir, float height);
 
     @Invoker
-    ColorSampler<FluidState> callCreateColorProviderAdapter(FluidRenderHandler handler);
-
-    @Invoker
-    void callUpdateQuad(ModelQuadView quad, BlockRenderView world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness, ColorSampler<FluidState> colorSampler, FluidState fluidState);
+    void callUpdateQuad(ModelQuadView quad, WorldSlice world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness, ColorProvider<FluidState> colorSampler, FluidState fluidState);
 
     @Invoker
     void callSetVertex(ModelQuadViewMutable quad, int i, float x, float y, float z, float u, float v);
@@ -54,5 +57,8 @@ public interface FluidRendererAccessor {
     LightPipelineProvider getLighters();
 
     @Invoker
-    void callWriteQuad(ChunkModelBuilder builder, BlockPos offset, ModelQuadView quad, ModelQuadFacing facing, ModelQuadWinding winding);
+    void callWriteQuad(ChunkModelBuilder builder, Material material, BlockPos offset, ModelQuadView quad, ModelQuadFacing facing, boolean flip);
+
+    @Invoker
+    ColorProvider<FluidState> callGetColorProvider(Fluid fluid, FluidRenderHandler handler);
 }

@@ -3,10 +3,13 @@ package me.alphamode.star.world.fluids;
 import me.alphamode.star.Star;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.Direction;
 
@@ -33,6 +36,16 @@ public abstract class TestFluid extends StarFluid {
     @Override
     protected BlockState toBlockState(FluidState state) {
         return Star.FLUID.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
+    }
+
+    @Override
+    public ParticleEffect getBubbleParticle(Entity entity) {
+        return ParticleTypes.BUBBLE;
+    }
+
+    @Override
+    public ParticleEffect getSplashParticle(Entity entity) {
+        return ParticleTypes.SPLASH;
     }
 
     public static class Flowing extends TestFluid {

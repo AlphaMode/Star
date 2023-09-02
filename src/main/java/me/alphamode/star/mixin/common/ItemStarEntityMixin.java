@@ -1,7 +1,7 @@
 package me.alphamode.star.mixin.common;
 
 import me.alphamode.star.data.StarTags;
-import me.alphamode.star.extensions.EntityExtension;
+import me.alphamode.star.extensions.StarEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity implements EntityExtension {
-    public ItemEntityMixin(EntityType<?> type, World world) {
+public abstract class ItemStarEntityMixin extends Entity implements StarEntity {
+    public ItemStarEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
 
