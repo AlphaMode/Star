@@ -30,7 +30,8 @@
   },
   "custom": {
     "loom:injected_interfaces": {
-      "net/minecraft/class_1297": ["me/alphamode/star/extensions/StarEntity"]
+      "net/minecraft/class_1297": ["me/alphamode/star/extensions/StarEntity"],
+      "net/fabricmc/fabric/api/client/render/fluid/v1/FluidRenderHandler": ["me/alphamode/star/extensions/fabric/FluidRenderHandlerExtension"]
     }
   }
 }

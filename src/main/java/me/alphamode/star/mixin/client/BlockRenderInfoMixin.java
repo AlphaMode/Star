@@ -1,6 +1,6 @@
 package me.alphamode.star.mixin.client;
 
-import me.alphamode.star.extensions.indium.BlockRenderInfoExtension;
+import me.alphamode.star.extensions.BlockRenderInfoExtension;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -10,6 +10,9 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockRenderInfo.class)
 public abstract class BlockRenderInfoMixin implements BlockRenderInfoExtension {
@@ -18,6 +21,9 @@ public abstract class BlockRenderInfoMixin implements BlockRenderInfoExtension {
     @Shadow public long seed;
     @Shadow private boolean defaultAo;
     @Shadow private RenderLayer defaultLayer;
+    @Shadow private boolean useAo;
+    @Shadow private int cullCompletionFlags;
+    @Shadow private int cullResultFlags;
     public FluidState star_fluidState;
 
     @Override
@@ -26,14 +32,23 @@ public abstract class BlockRenderInfoMixin implements BlockRenderInfoExtension {
     }
 
     @Override
-    public void star_prepareForFluid(BlockState blockState, FluidState fluidState, BlockPos blockPos, boolean modelAO) {
+    public void star_prepareForFluid(BlockState blockState, FluidState fluidState, BlockPos blockPos) {
         this.blockPos = blockPos;
         this.blockState = blockState;
         // in the unlikely case seed actually matches this, we'll simply retrieve it more than one
         seed = -1L;
-        defaultAo = modelAO && MinecraftClient.isAmbientOcclusionEnabled() && blockState.getLuminance() == 0;
+        useAo = MinecraftClient.isAmbientOcclusionEnabled();
+        defaultAo = useAo && blockState.getLuminance() == 0;
 
         defaultLayer = RenderLayers.getFluidLayer(fluidState);
         this.star_fluidState = fluidState;
+
+        cullCompletionFlags = 0;
+        cullResultFlags = 0;
+    }
+
+    @Inject(method = "release", at = @At("TAIL"), remap = false)
+    private void releaseFluid(CallbackInfo ci) {
+        star_fluidState = null;
     }
 }

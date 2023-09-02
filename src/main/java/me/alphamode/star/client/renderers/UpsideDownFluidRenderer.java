@@ -1,5 +1,8 @@
 package me.alphamode.star.client.renderers;
 
+import me.alphamode.star.client.models.FluidBakedModel;
+import me.alphamode.star.client.models.UpsideDownFluidModel;
+import me.alphamode.star.extensions.fabric.FluidRenderHandlerExtension;
 import me.alphamode.star.world.fluids.DirectionalFluid;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
@@ -37,7 +40,8 @@ import static net.minecraft.client.render.block.FluidRenderer.shouldRenderSide;
  * A Modified version of vanilla's fluid renderer to support
  * upside-down fluid rendering
  */
-public class UpsideDownFluidRenderer implements FluidRenderHandler {
+public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderHandlerExtension {
+    private final FluidBakedModel model;
     protected final Supplier<Identifier> stillGetter, flowingGetter, overlayGetter;
     protected final Sprite[] sprites;
 
@@ -49,6 +53,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
         this.overlayGetter = overlayTexture;
         this.sprites = new Sprite[overlayTexture == null ? 2 : 3];
         this.tint = tint;
+        this.model = new UpsideDownFluidModel();
     }
 
     public UpsideDownFluidRenderer(Identifier stillTexture, Identifier flowingTexture, int tint) {
@@ -68,7 +73,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
     }
 
     public UpsideDownFluidRenderer() {
-        this(LAVA_STILL, LAVA_FLOWING, WATER_OVERLAY);
+        this(WATER_STILL, WATER_FLOWING, WATER_OVERLAY);
     }
 
     @Override
@@ -298,6 +303,11 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler {
                 }
             }
         }
+    }
+
+    @Override
+    public FluidBakedModel getFluidModel() {
+        return this.model;
     }
 
     public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos) {

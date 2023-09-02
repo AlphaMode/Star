@@ -30,6 +30,4 @@ public abstract class FluidRendererMixin {
             ci.cancel();
         }
     }
-
-
 }

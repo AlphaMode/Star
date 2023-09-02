@@ -1,57 +1,44 @@
 package me.alphamode.star.mixin.indium;
 
-import link.infra.indium.renderer.aocalc.AoCalculator;
-import link.infra.indium.renderer.render.ChunkRenderInfo;
-import link.infra.indium.renderer.render.TerrainBlockRenderInfo;
+import link.infra.indium.renderer.render.AbstractBlockRenderContext;
 import link.infra.indium.renderer.render.TerrainRenderContext;
 import me.alphamode.star.client.models.FluidBakedModel;
-import me.alphamode.star.extensions.indium.BlockRenderInfoExtension;
+import me.alphamode.star.extensions.BlockRenderInfoExtension;
 import me.alphamode.star.extensions.indium.TerrainRenderContextExtension;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
-import org.spongepowered.asm.mixin.Final;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Pseudo
-@Mixin(TerrainRenderContext.class)
-public class TerrainRenderContextMixin implements TerrainRenderContextExtension {
-    @Shadow @Final private ChunkRenderInfo chunkInfo;
-
-    @Shadow @Final private AoCalculator aoCalc;
+@Mixin(value = TerrainRenderContext.class, remap = false)
+public abstract class TerrainRenderContextMixin extends AbstractBlockRenderContext implements TerrainRenderContextExtension {
+    @Shadow private Vector3fc origin;
 
     @Shadow private Vec3d modelOffset;
 
-    @Shadow private Vec3i origin;
-
-    @Shadow @Final private TerrainBlockRenderInfo blockInfo;
-
     @Override
-    public boolean tessellateFluid(BlockState blockState, FluidState fluidState, BlockPos blockPos, BlockPos origin, BakedModel model, Vec3d modelOffset) {
-        this.origin = origin;
-        this.modelOffset = modelOffset;
-
+    public void tessellateFluid(WorldSlice world, BlockState blockState, FluidState fluidState, BlockPos blockPos, BlockPos origin, FluidBakedModel model, Vec3d modelOffset) {
         try {
-            ((ChunkRenderInfoAccessor)this.chunkInfo).setDidOutput(false);
+            this.origin = new Vector3f(origin.getX(), origin.getY(), origin.getZ());
+            this.modelOffset = modelOffset;
             this.aoCalc.clear();
-            ((BlockRenderInfoExtension)this.blockInfo).star_prepareForFluid(blockState, fluidState, blockPos, model.useAmbientOcclusion());
-            ((FluidBakedModel)model).emitFluidQuads(this.blockInfo.blockView, this.blockInfo.blockState, ((BlockRenderInfoExtension) this.blockInfo).star_getFluidState(), this.blockInfo.blockPos, this.blockInfo.randomSupplier, (TerrainRenderContext) (Object) this);
-        } catch (Throwable var9) {
-            CrashReport crashReport = CrashReport.create(var9, "Tessellating liquid in world - Indium Renderer (Star)");
+            ((BlockRenderInfoExtension)this.blockInfo).star_prepareForFluid(blockState, fluidState, blockPos);
+            model.emitFluidQuads(this.blockInfo.blockView, this.blockInfo.blockState, ((BlockRenderInfoExtension) this.blockInfo).star_getFluidState(), this.blockInfo.blockPos, this.blockInfo.randomSupplier, (TerrainRenderContext) (Object) this);
+        } catch (Throwable throwable) {
+            CrashReport crashReport = CrashReport.create(throwable, "Tessellating liquid in world - Indium Renderer (Star)");
             CrashReportSection crashReportSection = crashReport.addElement("Block being tessellated");
-            CrashReportSection.addBlockInfo(crashReportSection, ((ChunkRenderInfoAccessor)this.chunkInfo).getBlockView(), blockPos, blockState);
+            CrashReportSection.addBlockInfo(crashReportSection, world, blockPos, blockState);
             throw new CrashException(crashReport);
         }
-
-        return ((ChunkRenderInfoAccessor)this.chunkInfo).isDidOutput();
     }
 }

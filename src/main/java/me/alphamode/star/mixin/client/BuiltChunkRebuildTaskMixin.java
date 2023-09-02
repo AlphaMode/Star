@@ -1,7 +1,9 @@
 package me.alphamode.star.mixin.client;
 
 import me.alphamode.star.client.models.FluidBakedModel;
+import me.alphamode.star.extensions.fabric.FluidRenderHandlerExtension;
 import me.alphamode.star.extensions.fabric.TerrainRenderContextExtension;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.impl.client.indigo.renderer.accessor.AccessChunkRendererRegion;
 import net.minecraft.block.BlockState;
@@ -26,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(ChunkBuilder.BuiltChunk.RebuildTask.class)
 public class BuiltChunkRebuildTaskMixin {
     private MatrixStack star_matrixStack;
+
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderFluid(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void captureMatrixStack(float cameraX, float cameraY, float cameraZ, BlockBufferBuilderStorage blockBufferBuilderStorage, CallbackInfoReturnable<ChunkBuilder.BuiltChunk.RebuildTask.RenderData> cir, ChunkBuilder.BuiltChunk.RebuildTask.RenderData renderData, int i, BlockPos blockPos, BlockPos blockPos2, ChunkOcclusionDataBuilder chunkOcclusionDataBuilder, ChunkRendererRegion chunkRendererRegion, MatrixStack matrixStack) {
         this.star_matrixStack = matrixStack;
@@ -33,13 +36,13 @@ public class BuiltChunkRebuildTaskMixin {
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderFluid(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V"))
     private void replaceFluidRenderer(BlockRenderManager renderManager, BlockPos blockPos, BlockRenderView blockView, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
-        final BakedModel model = renderManager.getModel(blockState);
+        final FluidBakedModel model = ((FluidRenderHandlerExtension) FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid())).getFluidModel();
 
-        if (!((FabricBakedModel) model).isVanillaAdapter() && model instanceof FluidBakedModel) {
+        if (model != null) {
             this.star_matrixStack.push();
             this.star_matrixStack.translate(blockPos.getX() & 15, blockPos.getY() & 15, blockPos.getZ() & 15);
 
-            ((TerrainRenderContextExtension)((AccessChunkRendererRegion) blockView).fabric_getRenderer()).tessellateFluid(blockState, fluidState, blockPos, model, this.star_matrixStack);
+            ((TerrainRenderContextExtension) ((AccessChunkRendererRegion) blockView).fabric_getRenderer()).tessellateFluid(blockState, fluidState, blockPos, model, this.star_matrixStack);
             this.star_matrixStack.pop();
             this.star_matrixStack = null;
             return;

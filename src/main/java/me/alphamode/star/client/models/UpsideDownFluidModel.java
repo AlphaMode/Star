@@ -35,7 +35,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class UpsideDownFluidModel implements BakedModel, FluidBakedModel {
+public class UpsideDownFluidModel implements FluidBakedModel {
     private static final float EPSILON = 0F;
 
     public static boolean isSideExposed(BlockRenderView world, int x, int y, int z, Direction dir, float height) {
@@ -67,15 +67,8 @@ public class UpsideDownFluidModel implements BakedModel, FluidBakedModel {
         }
     }
 
-    static RenderMaterial MATERIAL = RendererAccess.INSTANCE.getRenderer().materialFinder().disableDiffuse(0, true).emissive(0, true).find();
-    
     @Override
     public void emitFluidQuads(BlockRenderView world, BlockState state, FluidState fluidState, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-        context.pushTransform(quad1 -> {
-            quad1.material(MATERIAL);
-            quad1.spriteColor(0, Color.GREEN.getRGB(), Color.GREEN.getRGB(), Color.GREEN.getRGB(), Color.GREEN.getRGB());
-            return true;
-        });
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
@@ -158,8 +151,8 @@ public class UpsideDownFluidModel implements BakedModel, FluidBakedModel {
 
             float uAvg = (u1 + u2 + u3 + u4) / 4.0F;
             float vAvg = (v1 + v2 + v3 + v4) / 4.0F;
-            float s1 = (float) sprites[0].getWidth() / (sprites[0].getMaxU() - sprites[0].getMinU());
-            float s2 = (float) sprites[0].getHeight() / (sprites[0].getMaxV() - sprites[0].getMinV());
+            float s1 = (float) sprites[0].getContents().getWidth() / (sprites[0].getMaxU() - sprites[0].getMinU());
+            float s2 = (float) sprites[0].getContents().getHeight() / (sprites[0].getMaxV() - sprites[0].getMinV());
             float s3 = 4.0F / Math.max(s2, s1);
 
             u1 = MathHelper.lerp(s3, u1, uAvg);
@@ -174,7 +167,7 @@ public class UpsideDownFluidModel implements BakedModel, FluidBakedModel {
             // Bake the fluid slope
 
             // Top side
-            if (fluidState.method_15756(world, pos.up())) {
+            if (fluidState.canFlowTo(world, pos.up())) {
                 quad.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
 
                 setVertex(quad, 0, 0.0f, 1 - h1, 0.0f, u1, v1, fluid.getFlowDirection());
@@ -304,70 +297,19 @@ public class UpsideDownFluidModel implements BakedModel, FluidBakedModel {
                 if (!isOverlay) { // Render overlay (inside of the fluid)
                     setVertex(quad, 0, endX, 1 - yOffset, endZ, startU, ay, direction);
                     setVertex(quad, 1, startX, 1 - yOffset, startZ, ap, ay, direction);
-                    setVertex(quad, 2, startX, 1 - sideY, startZ, ap, ax, direction);
-                    setVertex(quad, 3, endX, 1 - endSideY, endZ, startU, endV, direction);
+                    setVertex(quad, 2, startX, 1 - sideY, startZ, ap, endV, direction);
+                    setVertex(quad, 3, endX, 1 - endSideY, endZ, startU, ax, direction);
 
                     quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
                     quad.emit();
                 }
             }
         }
-        context.popTransform();
-    }
-
-    @Override
-    public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-        ((FabricBakedModel)MinecraftClient.getInstance().getBakedModelManager().getBlockModels().getModel(Blocks.DIAMOND_BLOCK.getDefaultState())).emitBlockQuads(blockView, state, pos, randomSupplier, context);
     }
 
     public void setVertex(QuadEmitter emitter, int vertexIndex, float x, float y, float z, float u, float v, Direction normal) {
         emitter.pos(vertexIndex, x, y, z);
         emitter.sprite(vertexIndex, 0, u, v);
         emitter.nominalFace(normal);
-    }
-
-    @Override
-    public boolean isVanillaAdapter() {
-        return false;
-    }
-
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, Random random) {
-        return List.of();
-    }
-
-    @Override
-    public boolean useAmbientOcclusion() {
-        return false;
-    }
-
-    @Override
-    public boolean hasDepth() {
-        return false;
-    }
-
-    @Override
-    public boolean isSideLit() {
-        return false;
-    }
-
-    @Override
-    public boolean isBuiltin() {
-        return false;
-    }
-
-    @Override
-    public Sprite getParticleSprite() {
-        return MinecraftClient.getInstance().getBakedModelManager().getBlockModels().getModel(Blocks.DIAMOND_BLOCK.getDefaultState()).getParticleSprite();
-    }
-
-    @Override
-    public ModelTransformation getTransformation() {
-        return ModelTransformation.NONE;
-    }
-
-    @Override
-    public ModelOverrideList getOverrides() {
-        return ModelOverrideList.EMPTY;
     }
 }

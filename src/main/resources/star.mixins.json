@@ -4,17 +4,26 @@
   "package": "me.alphamode.star.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BlockRenderInfoAccessor",
     "EntityAccessor",
     "LivingEntityAccessor",
     "client.BakedModelManagerMixin",
     "client.ClientPlayerEntityMixin",
+    "client.FluidRenderHandlerMixin",
     "common.EntityMixin",
     "common.ItemStarEntityMixin",
     "common.LivingEntityMixin",
+    "indium.BlockRenderInfoMixin",
+    "indium.ChunkBuilderMeshingTaskMixin",
+    "indium.TerrainRenderContextMixin",
     "sodium.FluidRendererAccessor",
     "sodium.FluidRendererMixin"
   ],
   "client": [
+    "ChunkRenderInfoAccessor",
+    "client.BlockRenderInfoMixin",
+    "client.BuiltChunkRebuildTaskMixin",
+    "client.TerrainRenderContextMixin"
   ],
   "injectors": {
     "defaultRequire": 1
