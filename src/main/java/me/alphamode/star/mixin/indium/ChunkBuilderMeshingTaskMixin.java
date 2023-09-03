@@ -11,6 +11,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.FluidRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderTask;
+import me.jellysquid.mods.sodium.client.util.task.CancellationToken;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.fluid.FluidState;
@@ -21,11 +22,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Pseudo
-@Mixin(value = ChunkBuilderMeshingTask.class, remap = false)
+@Mixin(ChunkBuilderMeshingTask.class)
 public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<ChunkBuildOutput> {
     @Redirect(method = "execute(Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationToken;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
-            at = @At(value = "INVOKE", target = "Lme/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/FluidRenderer;render(Lme/jellysquid/mods/sodium/client/world/WorldSlice;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;)V", remap = true), remap = true)
-    public void onRenderBlock(FluidRenderer fluidRenderer, WorldSlice worldSlice, FluidState fluidState, BlockPos pos, BlockPos modelOffset, ChunkBuildBuffers buffers, ChunkBuildContext buildContext) {
+            at = @At(value = "INVOKE", target = "Lme/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/FluidRenderer;render(Lme/jellysquid/mods/sodium/client/world/WorldSlice;Lnet/minecraft/fluid/FluidState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;)V"))
+    public void onRenderBlock(FluidRenderer fluidRenderer, WorldSlice worldSlice, FluidState fluidState, BlockPos pos, BlockPos modelOffset, ChunkBuildBuffers buffers, ChunkBuildContext buildContext, CancellationToken cancellationToken) {
         // We need to get the model with a bit more context than BlockRenderer has, so we do it here
         var blockState = worldSlice.getBlockState(pos);
         final FluidBakedModel model = ((FluidRenderHandlerExtension) FluidRenderHandlerRegistry.INSTANCE.get(worldSlice.getFluidState(pos).getFluid())).getFluidModel();
