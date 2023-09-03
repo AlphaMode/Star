@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(BlockRenderInfo.class)
+@Mixin(value = BlockRenderInfo.class, remap = false)
 public class BlockRenderInfoMixin implements BlockRenderInfoExtension {
     @Shadow public BlockPos blockPos;
     @Shadow public BlockState blockState;

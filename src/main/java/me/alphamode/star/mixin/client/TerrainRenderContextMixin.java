@@ -10,7 +10,6 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractBlockRende
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.ChunkRenderInfo;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.TerrainRenderContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.crash.CrashException;
@@ -23,7 +22,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @SuppressWarnings("UnstableApiUsage")
-@Mixin(TerrainRenderContext.class)
+@Mixin(value = TerrainRenderContext.class, remap = false)
 public abstract class TerrainRenderContextMixin extends AbstractBlockRenderContext implements TerrainRenderContextExtension {
 
     @Shadow
