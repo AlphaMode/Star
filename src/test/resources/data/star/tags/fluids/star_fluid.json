@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "star_test:test_still",
+    "star_test:test_flowing",
+    "star_test:test_still_up",
+    "star_test:test_flowing_up",
+    "star_test:test_still_normal",
+    "star_test:test_flowing_normal"
+  ]
+}

@@ -19,23 +19,42 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 // TODO: Rewrite (Currently a vanila copy of FlowableFluid modified to support semi directional flow)
 public abstract class DirectionalFluid extends FlowableFluid {
+    public static final List<Direction> VERTICAL_DIRECTIONS = List.of(Direction.NORTH, Direction.SOUTH, Direction.UP, Direction.DOWN);
+    public static final List<Direction> HORIZONTAL_DIRECTIONS = List.of(Direction.WEST, Direction.EAST, Direction.UP, Direction.DOWN);
     protected final Direction flowDirection;
 
     public DirectionalFluid(Direction flowDirection) {
         this.flowDirection = flowDirection;
     }
 
+    public Direction getFlowDirection(BlockView world, FluidState fluidState, BlockPos pos) {
+        return getFlowDirection();
+    }
+
     public Direction getFlowDirection() {
         return flowDirection;
+    }
+
+    public Iterable<Direction> getDirections(BlockView world, BlockPos pos, @Nullable FluidState state) {
+        return switch (getFlowDirection(world, state, pos)) {
+            case UP, DOWN -> Direction.Type.HORIZONTAL;
+            case NORTH -> HORIZONTAL_DIRECTIONS;
+            case SOUTH -> HORIZONTAL_DIRECTIONS;
+            case WEST -> VERTICAL_DIRECTIONS;
+            case EAST -> VERTICAL_DIRECTIONS;
+        };
     }
 
     @Override
@@ -43,7 +62,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         double d = 0.0;
         double e = 0.0;
         BlockPos.Mutable mutable = new BlockPos.Mutable();
-        for (Direction direction : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+        for (Direction direction : getDirections(world, pos, state)) {
             mutable.set(pos, direction);
             FluidState fluidState = world.getFluidState(mutable);
             if (!this.isEmptyOrThis(fluidState)) continue;
@@ -63,7 +82,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         }
         Vec3d vec3d = new Vec3d(d, 0.0, e);
         if (state.get(FALLING)) {
-            for (Direction direction2 : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+            for (Direction direction2 : getDirections(world, pos, state)) {
                 mutable.set(pos, direction2);
                 if (!this.isFlowBlocked(world, mutable, direction2) && !this.isFlowBlocked(world, mutable.move(flowDirection.getOpposite()), direction2)) continue;
                 vec3d = vec3d.normalize().add(0.0, -6.0, 0.0);
@@ -112,7 +131,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         FluidState fluidState3;
         int i = 0;
         int j = 0;
-        for (Direction direction : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+        for (Direction direction : getDirections(world, pos, null)) {
             BlockPos blockPos = pos.offset(direction);
             BlockState blockState = world.getBlockState(blockPos);
             FluidState fluidState = blockState.getFluidState();
@@ -142,7 +161,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
     @Override
     protected int getFlowSpeedBetween(WorldView world, BlockPos blockPos, int i, Direction direction, BlockState blockState, BlockPos blockPos2, Short2ObjectMap<Pair<BlockState, FluidState>> short2ObjectMap, Short2BooleanMap short2BooleanMap) {
         int j = 1000;
-        for (Direction direction2 : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+        for (Direction direction2 : getDirections(world, blockPos, null)) {
             int k;
             if (direction2 == direction) continue;
             BlockPos blockPos3 = blockPos.offset(direction2);
@@ -182,7 +201,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
     @Override
     public int countNeighboringSources(WorldView world, BlockPos pos) {
         int i = 0;
-        for (Direction direction : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+        for (Direction direction : getDirections(world, pos, null)) {
             BlockPos blockPos = pos.offset(direction);
             FluidState fluidState = world.getFluidState(blockPos);
             if (!this.isMatchingAndStill(fluidState)) continue;
@@ -197,7 +216,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
         EnumMap<Direction, FluidState> map = Maps.newEnumMap(Direction.class);
         Short2ObjectOpenHashMap<Pair<BlockState, FluidState>> short2ObjectMap = new Short2ObjectOpenHashMap<Pair<BlockState, FluidState>>();
         Short2BooleanOpenHashMap short2BooleanMap = new Short2BooleanOpenHashMap();
-        for (Direction direction : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
+        for (Direction direction : getDirections(world, pos, null)) {
             BlockPos blockPos = pos.offset(direction);
             short s2 = FlowableFluid.packXZOffset(pos, blockPos);
             Pair pair = short2ObjectMap.computeIfAbsent(s2, s -> {
@@ -226,7 +245,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
 
     public static boolean isFluidInDirectionEqual(FluidState state, BlockView world, BlockPos pos) {
         if(state.getFluid() instanceof DirectionalFluid directionalFluid)
-            return state.getFluid().matchesType(world.getFluidState(pos.offset(directionalFluid.getFlowDirection())).getFluid());
+            return state.getFluid().matchesType(world.getFluidState(pos.offset(directionalFluid.getFlowDirection(world, state, pos))).getFluid());
         return state.getFluid().matchesType(world.getFluidState(pos.up()).getFluid());
     }
 

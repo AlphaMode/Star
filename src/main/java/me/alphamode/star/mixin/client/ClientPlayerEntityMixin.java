@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin extends PlayerEntity implements StarEntity {
@@ -29,7 +30,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements St
 
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isFallFlying()Z"))
     public void star$knockUpwards(CallbackInfo ci) {
-        if (isTouchingUpsideDownFluid() && this.input.sneaking && shouldSwimInFluids())
+        if (isTouchingStarFluid() && this.input.sneaking && shouldSwimInFluids())
             ((StarFluid) getTouchingFluid().getFluid()).knockInFlowDirection(this);
 
         double breathingDistance = getEyeY() - Entity.field_29991;
@@ -40,5 +41,13 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements St
 
         if (fluidState.getFluid() instanceof StarFluid fluid)
             this.underwaterVisibilityTicks = fluid.calculateSubmergedVisibility(this, this.underwaterVisibilityTicks);
+    }
+
+    @Inject(method = "getUnderwaterVisibility", at = @At("HEAD"), cancellable = true)
+    private void getStarFluidVis(CallbackInfoReturnable<Float> cir) {
+        var touching = getTouchingFluid();
+        if (touching != null && touching.getFluid() instanceof StarFluid starFluid) {
+            cir.setReturnValue(starFluid.getSubmergedVisibility((ClientPlayerEntity) (Object) this));
+        }
     }
 }

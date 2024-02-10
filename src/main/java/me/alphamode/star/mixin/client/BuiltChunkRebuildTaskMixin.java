@@ -36,7 +36,8 @@ public class BuiltChunkRebuildTaskMixin {
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderFluid(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V"))
     private void replaceFluidRenderer(BlockRenderManager renderManager, BlockPos blockPos, BlockRenderView blockView, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
-        final FluidBakedModel model = ((FluidRenderHandlerExtension) FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid())).getFluidModel();
+        var renderer = FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid());
+        final FluidBakedModel model = renderer != null ? ((FluidRenderHandlerExtension) renderer).getFluidModel() : null;
 
         if (model != null) {
             this.star_matrixStack.push();

@@ -9,6 +9,6 @@ import net.minecraft.registry.tag.TagKey;
 public class StarTags {
 
     public static class Fluids {
-        public static final TagKey<Fluid> UPSIDE_DOWN_FLUID = TagKey.of(RegistryKeys.FLUID, Star.getResource("upside_down_fluid"));
+        public static final TagKey<Fluid> STAR_FLUID = TagKey.of(RegistryKeys.FLUID, Star.getResource("star_fluid"));
     }
 }

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "star_test",
+  "version": "1.0.0",
+  "name": "Star Test Mod",
+  "description": "",
+  "authors": [
+    "AlphaMode"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "me.alphamode.star.test.client.StarTestClient"
+    ],
+    "main": [
+      "me.alphamode.star.test.StarTest"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric": "*",
+    "minecraft": ">=1.20"
+  }
+}

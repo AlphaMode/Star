@@ -2,6 +2,7 @@ package me.alphamode.star.client.models;
 
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;

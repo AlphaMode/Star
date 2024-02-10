@@ -11,6 +11,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,12 +19,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(Entity.class)
-public class EntityMixin implements StarEntity {
+public abstract class EntityMixin implements StarEntity {
 
     @Shadow
     public @Nullable Entity getVehicle() {
@@ -50,27 +52,49 @@ public class EntityMixin implements StarEntity {
     public void extinguish() {
     }
 
-    @Shadow @Final private static double SPEED_IN_WATER;
+    @Shadow @Final
+    public static double SPEED_IN_WATER;
+
+    @Shadow public abstract boolean isSwimming();
+
+    @Shadow public abstract void setSwimming(boolean swimming);
+
+    @Shadow public abstract boolean isSprinting();
+
+    @Shadow public abstract boolean hasVehicle();
+
+    @Shadow public abstract World getWorld();
+
+    @Shadow private BlockPos blockPos;
+
+    @Shadow public abstract boolean isSubmergedIn(TagKey<Fluid> fluidTag);
+
+    protected boolean star$submergedInStarFluid;
 
     @Unique
     @Override
-    public boolean isTouchingUpsideDownFluid() {
+    public boolean isTouchingStarFluid() {
         return this.touchingFluid != null && this.touchingFluid.getFluid() instanceof StarFluid;
     }
 
+    @Override
+    public boolean isSubmergedInStarFluid() {
+        return this.star$submergedInStarFluid && this.isTouchingStarFluid();
+    }
+
     @Unique
-    private boolean touchingUpsideDownFluid;
+    private boolean touchingStarFluid;
 
     @Unique
     private FluidState touchingFluid;
 
     @Unique
     @Override
-    public void checkUpsideDownState() {
+    public void checkStarFluidState() {
         if (this.getVehicle() instanceof BoatEntity) {
-            this.touchingUpsideDownFluid = false;
-        } else if (this.updateMovementInFluid(StarTags.Fluids.UPSIDE_DOWN_FLUID, SPEED_IN_WATER)) {
-            if (!this.touchingUpsideDownFluid && !this.firstUpdate) {
+            this.touchingStarFluid = false;
+        } else if (this.updateMovementInFluid(StarTags.Fluids.STAR_FLUID, SPEED_IN_WATER)) {
+            if (!this.touchingStarFluid && !this.firstUpdate) {
                 if (this.touchingFluid.getFluid() instanceof StarFluid starFluid)
                     starFluid.onSwimmingStart((Entity) (Object) this);
                 else
@@ -78,10 +102,10 @@ public class EntityMixin implements StarEntity {
             }
 
             this.onLanding();
-            this.touchingUpsideDownFluid = true;
+            this.touchingStarFluid = true;
             this.extinguish();
         } else {
-            this.touchingUpsideDownFluid = false;
+            this.touchingStarFluid = false;
         }
     }
 
@@ -90,16 +114,39 @@ public class EntityMixin implements StarEntity {
         return this.touchingFluid;
     }
 
+    @ModifyArg(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;multiply(D)Lnet/minecraft/util/math/Vec3d;", ordinal = 2))
+    private double getStarSpeed(double value) {
+        if (this.touchingFluid != null && this.touchingFluid.getFluid() instanceof StarFluid starFluid)
+            return starFluid.getMovementSpeed();
+        return value;
+    }
+
     @Inject(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;isIn(Lnet/minecraft/registry/tag/TagKey;)Z"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void captureTouchingFluid(TagKey<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int i, int j, int k, int l, int m, int n, double d, boolean bl, boolean bl2, Vec3d vec3d, int o, BlockPos.Mutable mutable, int p, int q, int r, FluidState fluidState) {
-        if (fluidState.isIn(tag))
-            this.touchingFluid = fluidState;
+        this.touchingFluid = fluidState;
     }
 
     @Inject(method = "updateMovementInFluid", at = @At("RETURN"))
     private void checkIfActuallyTouching(TagKey<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue())
             this.touchingFluid = null;
+    }
+
+//    @Inject(method = "updateSwimming", at = @At("TAIL"))
+//    private void canSwimInCustomFluid(CallbackInfo ci) {
+//        if (this.touchingFluid != null && this.touchingFluid.getFluid() instanceof StarFluid starFluid && starFluid.canSwimIn((Entity) (Object) this)) {
+//            setSwimming(true);
+//            if (this.isSwimming()) {
+//                this.setSwimming(this.isSprinting() && this.isTouchingStarFluid() && !this.hasVehicle());
+//            } else {
+//                this.setSwimming(this.isSprinting() && this.isSubmergedInStarFluid() && !this.hasVehicle() && this.getWorld().getFluidState(this.blockPos).isIn(StarTags.Fluids.STAR_FLUID));
+//            }
+//        }
+//    }
+
+    @Inject(method = "updateSubmergedInWaterState", at = @At("HEAD"))
+    private void setIsSubmergedInStarFluid(CallbackInfo ci) {
+        this.star$submergedInStarFluid = this.isSubmergedIn(StarTags.Fluids.STAR_FLUID);
     }
 
     @Inject(method = "updateSubmergedInWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;streamTags()Ljava/util/stream/Stream;"), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -109,12 +156,12 @@ public class EntityMixin implements StarEntity {
 
     @Inject(method = "updateWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;checkWaterState()V"))
     public void star$upsideDownFluidCheck(CallbackInfoReturnable<Boolean> cir) {
-        checkUpsideDownState();
+        checkStarFluidState();
     }
 
     @Inject(method = "updateWaterState", at = @At("RETURN"), cancellable = true)
     public void star$fixReturn(CallbackInfoReturnable<Boolean> cir) {
-        if(!cir.getReturnValue() && isTouchingUpsideDownFluid())
+        if(!cir.getReturnValue() && isTouchingStarFluid())
             cir.setReturnValue(true);
     }
 }

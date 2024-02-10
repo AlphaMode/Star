@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "me.alphamode.star.mixin",
+  "plugin": "me.alphamode.star.mixin.StarMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BlockRenderInfoAccessor",

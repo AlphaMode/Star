@@ -1,6 +1,8 @@
-package me.alphamode.star.world.fluids;
+package me.alphamode.star.test.fluids;
 
 import me.alphamode.star.Star;
+import me.alphamode.star.test.StarTest;
+import me.alphamode.star.world.fluids.StarFluid;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.Entity;
@@ -14,18 +16,18 @@ import net.minecraft.state.StateManager;
 import net.minecraft.util.math.Direction;
 
 public abstract class TestFluid extends StarFluid {
-    public TestFluid() {
-        super(Direction.UP);
+    public TestFluid(Direction flowDirection) {
+        super(flowDirection);
     }
 
     @Override
     public Fluid getFlowing() {
-        return Star.FLOWING;
+        return getFlowDirection() == Direction.NORTH ? StarTest.FLOWING : getFlowDirection() == Direction.DOWN ? StarTest.FLOWING_NORMAL : StarTest.FLOWING_UP;
     }
 
     @Override
     public Fluid getStill() {
-        return Star.STILL;
+        return getFlowDirection() == Direction.NORTH ? StarTest.STILL : getFlowDirection() == Direction.DOWN ? StarTest.STILL_NORMAL : StarTest.STILL_UP;
     }
 
     @Override
@@ -35,7 +37,7 @@ public abstract class TestFluid extends StarFluid {
 
     @Override
     protected BlockState toBlockState(FluidState state) {
-        return Star.FLUID.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
+        return getFlowDirection() == Direction.NORTH ? StarTest.FLUID.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state)) : getFlowDirection() == Direction.DOWN ? StarTest.FLUID_NORMAL.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state)) : StarTest.FLUID_UP.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
     }
 
     @Override
@@ -49,7 +51,8 @@ public abstract class TestFluid extends StarFluid {
     }
 
     public static class Flowing extends TestFluid {
-        public Flowing() {
+        public Flowing(Direction flowDirection) {
+            super(flowDirection);
         }
 
         protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder) {
@@ -67,7 +70,8 @@ public abstract class TestFluid extends StarFluid {
     }
 
     public static class Still extends TestFluid {
-        public Still() {
+        public Still(Direction flowDirection) {
+            super(flowDirection);
         }
 
         public int getLevel(FluidState state) {

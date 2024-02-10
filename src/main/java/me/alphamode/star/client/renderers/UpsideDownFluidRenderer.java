@@ -92,7 +92,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
     @Override
     public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
-        if(fluid.getFlowDirection() == Direction.DOWN) {
+        if(fluid.getFlowDirection(world, fluidState, pos) == Direction.DOWN) {
             ((FluidRenderHandlerRegistryImpl) FluidRenderHandlerRegistry.INSTANCE).renderFluid(pos, world, vertexConsumer, blockState, fluidState);
             return;
         }
@@ -115,8 +115,8 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
         BlockState eastState = world.getBlockState(pos.offset(Direction.EAST));
         FluidState eastFluidState = eastState.getFluidState();
         boolean isFluidTheSame = !isSameFluid(fluidState, downFluidState);
-        boolean renderBottomSide = shouldRenderSide(world, pos, fluidState, blockState, fluid.getFlowDirection(), upFluidState)
-                && !isSideCovered(world, pos, fluid.getFlowDirection(), 0.8888889F, upState);
+        boolean renderBottomSide = shouldRenderSide(world, pos, fluidState, blockState, fluid.getFlowDirection(world, fluidState, pos), upFluidState)
+                && !isSideCovered(world, pos, fluid.getFlowDirection(world, fluidState, pos), 0.8888889F, upState);
         boolean renderNorthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.NORTH, northFluidState);
         boolean renderSouthSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.SOUTH, southFluidState);
         boolean renderWestSide = shouldRenderSide(world, pos, fluidState, blockState, Direction.WEST, westFluidState);
@@ -215,7 +215,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                 float ab = sprites[0].getMaxU();
                 float ad = sprites[0].getMinV();
                 float af = sprites[0].getMaxV();
-                int aq = this.getLight(world, pos.offset(fluid.getFlowDirection()));
+                int aq = this.getLight(world, pos.offset(fluid.getFlowDirection(world, fluidState, pos)));
                 float ac = downBrightness * r;
                 float ae = downBrightness * g;
                 float ag = downBrightness * b;
@@ -348,7 +348,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
 
     public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
         if (fluid.matchesType(fluidState.getFluid())) {
-            BlockState blockState2 = blockRenderView.getBlockState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
+            BlockState blockState2 = blockRenderView.getBlockState(blockPos.offset(fluid.getFlowDirection(blockRenderView, fluidState, blockPos).getOpposite()));
             return fluid.matchesType(blockState2.getFluidState().getFluid()) ? 1.0F : fluidState.getHeight();
         } else {
             return !blockState.isSolid() ? 0.0F : -1.0F;

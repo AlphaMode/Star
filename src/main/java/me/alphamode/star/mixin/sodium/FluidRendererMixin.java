@@ -25,7 +25,7 @@ public abstract class FluidRendererMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void star$supportUpsideDownFluids(WorldSlice world, FluidState fluidState, BlockPos pos, BlockPos offset, ChunkBuildBuffers buffers, CallbackInfo ci) {
         FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid());
-        if (handler instanceof UpsideDownFluidRenderer renderer && ((DirectionalFluid) fluidState.getFluid()).getFlowDirection() != Direction.DOWN) {
+        if (handler instanceof UpsideDownFluidRenderer renderer && ((DirectionalFluid) fluidState.getFluid()).getFlowDirection(world, fluidState, pos) != Direction.DOWN) {
             star$upsideDownFluidRenderer.renderUpsideDown(world, fluidState, pos, offset, buffers, renderer);
             ci.cancel();
         }

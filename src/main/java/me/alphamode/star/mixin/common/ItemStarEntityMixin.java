@@ -26,7 +26,7 @@ public abstract class ItemStarEntityMixin extends Entity implements StarEntity {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStandingEyeHeight()F"))
     public void star$upsideDownFluidItems(CallbackInfo ci) {
         float f = this.getStandingEyeHeight() - 0.11111111F;
-        if (this.isTouchingUpsideDownFluid() && this.getFluidHeight(StarTags.Fluids.UPSIDE_DOWN_FLUID) > (double)f) {
+        if (this.isTouchingStarFluid() && this.getFluidHeight(StarTags.Fluids.STAR_FLUID) > (double)f) {
             applyUpsideDownBuoyancy();
         }
     }

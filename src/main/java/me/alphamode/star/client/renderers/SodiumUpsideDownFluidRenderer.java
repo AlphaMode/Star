@@ -43,7 +43,7 @@ public class SodiumUpsideDownFluidRenderer {
         BlockState blockState = world.getBlockState(blockPos);
         FluidState fluidState = blockState.getFluidState();
         if (fluid.matchesType(fluidState.getFluid())) {
-            FluidState fluidStateUp = world.getFluidState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
+            FluidState fluidStateUp = world.getFluidState(blockPos.offset(fluid.getFlowDirection(world, fluidState, blockPos).getOpposite()));
             return fluid.matchesType(fluidStateUp.getFluid()) ? 1.0F : fluidState.getHeight();
         } else {
             return !blockState.isSolid() ? 0.0F : -1.0F;
@@ -59,9 +59,9 @@ public class SodiumUpsideDownFluidRenderer {
 
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
 
-        boolean sfUp = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection().getOpposite(), fluid);
-        boolean sfDown = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection(), fluid) ||
-                !fluidRenderer.callIsSideExposed(world, posX, posY, posZ, fluid.getFlowDirection(), 0.8888889F);
+        boolean sfUp = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos).getOpposite(), fluid);
+        boolean sfDown = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos), fluid) ||
+                !fluidRenderer.callIsSideExposed(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos), 0.8888889F);
         boolean sfNorth = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, Direction.NORTH, fluid);
         boolean sfSouth = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, Direction.SOUTH, fluid);
         boolean sfWest = fluidRenderer.callIsFluidOccluded(world, posX, posY, posZ, Direction.WEST, fluid);
@@ -99,7 +99,7 @@ public class SodiumUpsideDownFluidRenderer {
 
             quad.setFlags(0);
 
-            if (!sfUp && fluidRenderer.callIsSideExposed(world, posX, posY, posZ, fluid.getFlowDirection(), Math.min(Math.min(h1, h2), Math.min(h3, h4)))) {
+            if (!sfUp && fluidRenderer.callIsSideExposed(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos), Math.min(Math.min(h1, h2), Math.min(h3, h4)))) {
                 h1 -= FluidRendererAccessor.getEPSILON();
                 h2 -= FluidRendererAccessor.getEPSILON();
                 h3 -= FluidRendererAccessor.getEPSILON();
@@ -161,7 +161,7 @@ public class SodiumUpsideDownFluidRenderer {
                 fluidRenderer.callSetVertex(quad, 2, 1.0F, 1 - h3, 1.0F, u3, v3);
                 fluidRenderer.callSetVertex(quad, 3, 1.0F, 1 - h4, 0.0f, u4, v4);
 
-                fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection().getOpposite(), 1.0F, colorProvider, fluidState);
+                fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection(world, fluidState, pos).getOpposite(), 1.0F, colorProvider, fluidState);
 
                 fluidRenderer.callWriteQuad(meshBuilder, material, offset, quad, facing, false);
 
@@ -185,7 +185,7 @@ public class SodiumUpsideDownFluidRenderer {
                 fluidRenderer.callSetVertex(quad, 2, 1.0F, yOffset, 0.0f, maxU, minV);
                 fluidRenderer.callSetVertex(quad, 3, 1.0F, yOffset, 1.0F, maxU, maxV);
 
-                fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection(), 1.0F, colorProvider, fluidState);
+                fluidRenderer.callUpdateQuad(quad, world, pos, lighter, fluid.getFlowDirection(world, fluidState, pos), 1.0F, colorProvider, fluidState);
 
                 fluidRenderer.callWriteQuad(meshBuilder, material, offset, quad, ModelQuadFacing.NEG_Y, false);
             }

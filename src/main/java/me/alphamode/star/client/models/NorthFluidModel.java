@@ -4,20 +4,11 @@ import me.alphamode.star.client.renderers.UpsideDownFluidRenderer;
 import me.alphamode.star.world.fluids.DirectionalFluid;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.SideShapeType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.json.ModelOverrideList;
-import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -29,13 +20,10 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
-import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
-import java.util.List;
 import java.util.function.Supplier;
 
-public class UpsideDownFluidModel implements FluidBakedModel {
+public class NorthFluidModel implements FluidBakedModel {
     private static final float EPSILON = 0F;
 
     public static boolean isSideExposed(BlockRenderView world, int x, int y, int z, Direction dir, float height) {
@@ -44,7 +32,7 @@ public class UpsideDownFluidModel implements FluidBakedModel {
         if (blockState.isOpaque()) {
             VoxelShape shape = blockState.getCullingShape(world, pos);
             if (shape == VoxelShapes.fullCube()) {
-                return dir == Direction.UP;
+                return dir == Direction.NORTH;
             } else if (shape.isEmpty()) {
                 return true;
             } else {
@@ -72,7 +60,7 @@ public class UpsideDownFluidModel implements FluidBakedModel {
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
-        
+
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
         FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid);
 
@@ -81,15 +69,15 @@ public class UpsideDownFluidModel implements FluidBakedModel {
         boolean sfUp = isFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos).getOpposite(), fluid);
         boolean sfDown = isFluidOccluded(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos), fluid) ||
                 !isSideExposed(world, posX, posY, posZ, fluid.getFlowDirection(world, fluidState, pos), 0.8888889F);
-        boolean sfNorth = isFluidOccluded(world, posX, posY, posZ, Direction.NORTH, fluid);
-        boolean sfSouth = isFluidOccluded(world, posX, posY, posZ, Direction.SOUTH, fluid);
+        boolean sfNorth = isFluidOccluded(world, posX, posY, posZ, Direction.UP, fluid);
+        boolean sfSouth = isFluidOccluded(world, posX, posY, posZ, Direction.DOWN, fluid);
         boolean sfWest = isFluidOccluded(world, posX, posY, posZ, Direction.WEST, fluid);
         boolean sfEast = isFluidOccluded(world, posX, posY, posZ, Direction.EAST, fluid);
 
         if (sfUp && sfDown && sfEast && sfWest && sfNorth && sfSouth) {
             return;
         }
-        
+
         Sprite[] sprites = handler.getFluidSprites(world, pos, fluidState);
 
         // Calculate the height of are fluid
@@ -101,14 +89,14 @@ public class UpsideDownFluidModel implements FluidBakedModel {
             h3 = 1.0f;
             h4 = 1.0f;
         } else {
-            float north1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.north());
-            float south1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.south());
+            float north1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.up());
+            float south1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.down());
             float east1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.east());
             float west1 = UpsideDownFluidRenderer.getFluidHeight(world, fluid, pos.west());
-            h1 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, north1, west1, pos.offset(Direction.NORTH).offset(Direction.WEST));
-            h2 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, south1, west1, pos.offset(Direction.SOUTH).offset(Direction.WEST));
-            h3 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, south1, east1, pos.offset(Direction.SOUTH).offset(Direction.EAST));
-            h4 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, north1, east1, pos.offset(Direction.NORTH).offset(Direction.EAST));
+            h1 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, north1, west1, pos.offset(Direction.UP).offset(Direction.WEST));
+            h2 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, south1, west1, pos.offset(Direction.DOWN).offset(Direction.WEST));
+            h3 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, south1, east1, pos.offset(Direction.DOWN).offset(Direction.EAST));
+            h4 = UpsideDownFluidRenderer.getHeightToRenderFluid(world, fluid, fluidHeight, north1, east1, pos.offset(Direction.UP).offset(Direction.EAST));
         }
         final QuadEmitter quad = context.getEmitter();
 
@@ -166,33 +154,33 @@ public class UpsideDownFluidModel implements FluidBakedModel {
 
             // Bake the fluid slope
 
-            // Top side
+            // Top side (Render outside)
             if (fluidState.canFlowTo(world, pos.up())) {
                 quad.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
 
-                setVertex(quad, 0, 0.0f, 1 - h1, 0.0f, u1, v1, fluid.getFlowDirection(world, fluidState, pos));
-                setVertex(quad, 1, 0.0f, 1 - h2, 1.0F, u2, v2, fluid.getFlowDirection(world, fluidState, pos));
-                setVertex(quad, 2, 1.0F, 1 - h3, 1.0F, u3, v3, fluid.getFlowDirection(world, fluidState, pos));
-                setVertex(quad, 3, 1.0F, 1 - h4, 0.0f, u4, v4, fluid.getFlowDirection(world, fluidState, pos));
+                setVertex(quad, 0, 0.0f, 0.0f, h2, u2, v2, fluid.getFlowDirection(world, fluidState, pos));
+                setVertex(quad, 1, 1.0F, 0.0f, h3, u3, v3, fluid.getFlowDirection(world, fluidState, pos));
+                setVertex(quad, 2, 1.0F, 1.0F, h4, u4, v4, fluid.getFlowDirection(world, fluidState, pos));
+                setVertex(quad, 3, 0.0f, 1.0F, h1, u1, v1, fluid.getFlowDirection(world, fluidState, pos));
                 quad.nominalFace();
                 quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
                 quad.emit();
             }
 
-            // Bottom side
+            // Render inside
             quad.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
 
-            setVertex(quad, 0, 0.0f, 1 - h1, 0.0f, u1, v1, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
-            setVertex(quad, 1, 1.0f, 1 - h4, 0.0F, u4, v4, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
-            setVertex(quad, 2, 1.0F, 1 - h3, 1.0F, u3, v3, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
-            setVertex(quad, 3, 0.0F, 1 - h2, 1.0f, u2, v2, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
+            setVertex(quad, 0, 0.0f, 0.0f, h2, u1, v1, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
+            setVertex(quad, 1, 0.0F, 1.0f, h1, u4, v4, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
+            setVertex(quad, 2, 1.0F, 1.0F, h4, u3, v3, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
+            setVertex(quad, 3, 1.0f, 0.0F, h3, u2, v2, fluid.getFlowDirection(world, fluidState, pos).getOpposite());
             quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
             quad.emit();
         }
 
         // Bake bottom of the fluid (not always visible)
         if (!sfDown) {
-            float yOffset = 1.0F - EPSILON;
+            float yOffset = EPSILON;
             Sprite sprite = sprites[0];
 
             float minU = sprite.getMinU();
@@ -201,21 +189,21 @@ public class UpsideDownFluidModel implements FluidBakedModel {
             float maxV = sprite.getMaxV();
             quad.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
 
-            setVertex(quad, 0, 1.0f, yOffset, 0.0F, minU, maxV, fluid.getFlowDirection(world, fluidState, pos));
-            setVertex(quad, 1, 0.0f, yOffset, 0.0f, minU, minV, fluid.getFlowDirection(world, fluidState, pos));
-            setVertex(quad, 2, 0.0F, yOffset, 1.0f, maxU, minV, fluid.getFlowDirection(world, fluidState, pos));
-            setVertex(quad, 3, 1.0F, yOffset, 1.0F, maxU, maxV, fluid.getFlowDirection(world, fluidState, pos));
+            setVertex(quad, 0, 1.0F, 1.0f, yOffset, minU, maxV, fluid.getFlowDirection(world, fluidState, pos));
+            setVertex(quad, 1, 1.0f, 0.0f, yOffset, minU, minV, fluid.getFlowDirection(world, fluidState, pos));
+            setVertex(quad, 2, 0.0f, 0.0F, yOffset, maxU, minV, fluid.getFlowDirection(world, fluidState, pos));
+            setVertex(quad, 3, 0.0F, 1.0F, yOffset, maxU, maxV, fluid.getFlowDirection(world, fluidState, pos));
             quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
 
             quad.emit();
         }
 
         float yOffset = sfDown ? EPSILON : 0.0F;
-        for (Direction direction : Direction.Type.HORIZONTAL) {
+        for (Direction direction : fluid.getDirections(world, pos, fluidState)) {
             float sideY, endSideY;
             float startX, startZ, endX, endZ;
             switch (direction) { // Handles how each side should look when rendering
-                case NORTH:
+                case UP:
                     if (sfNorth) {
                         continue;
                     }
@@ -224,10 +212,10 @@ public class UpsideDownFluidModel implements FluidBakedModel {
                     endSideY = h4;
                     startX = 0;
                     endX = 1.0F;
-                    startZ = EPSILON;
-                    endZ = EPSILON;
+                    startZ = 1.0F - EPSILON;
+                    endZ = 1.0F - EPSILON;
                     break;
-                case SOUTH:
+                case DOWN:
                     if (sfSouth) {
                         continue;
                     }
@@ -236,8 +224,8 @@ public class UpsideDownFluidModel implements FluidBakedModel {
                     endSideY = h2;
                     startX = 1.0F;
                     endX = 0;
-                    startZ = 1.0F - EPSILON;
-                    endZ = 1.0F - EPSILON;
+                    startZ = EPSILON;
+                    endZ = EPSILON;
                     break;
                 case WEST:
                     if (sfWest) {
@@ -286,19 +274,19 @@ public class UpsideDownFluidModel implements FluidBakedModel {
                 float ax = sprite.getFrameV((1.0F - endSideY) * 16.0F * 0.5F);
                 float ay = sprite.getFrameV(8.0);
 
-                setVertex(quad, 0, endX, 1 - endSideY, endZ, ap, ax, direction);
-                setVertex(quad, 1, startX, 1 - sideY, startZ, startU, endV, direction);
-                setVertex(quad, 2, startX, 1 - yOffset, startZ, startU, ay, direction);
-                setVertex(quad, 3, endX, 1 - yOffset, endZ, ap, ay, direction);
+                setVertex(quad, 0, startX, endZ, sideY, ap, ax, direction);
+                setVertex(quad, 1, endX, startZ, endSideY, startU, endV, direction);
+                setVertex(quad, 2, endX, startZ, yOffset, startU, ay, direction);
+                setVertex(quad, 3, startX, endZ, yOffset, ap, ay, direction);
 
                 quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
                 quad.emit();
 
                 if (!isOverlay) { // Render overlay (inside of the fluid)
-                    setVertex(quad, 0, endX, 1 - yOffset, endZ, startU, ay, direction);
-                    setVertex(quad, 1, startX, 1 - yOffset, startZ, ap, ay, direction);
-                    setVertex(quad, 2, startX, 1 - sideY, startZ, ap, endV, direction);
-                    setVertex(quad, 3, endX, 1 - endSideY, endZ, startU, ax, direction);
+                    setVertex(quad, 0, startX, endZ, yOffset, startU, ay, direction);
+                    setVertex(quad, 1, endX, startZ, yOffset, ap, ay, direction);
+                    setVertex(quad, 2, endX, startZ, endSideY, ap, endV, direction);
+                    setVertex(quad, 3, startX, endZ, sideY, startU, ax, direction);
 
                     quad.spriteColor(0, fluidColor, fluidColor, fluidColor, fluidColor);
                     quad.emit();

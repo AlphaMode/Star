@@ -2,9 +2,12 @@ package me.alphamode.star.world.fluids;
 
 import me.alphamode.star.mixin.EntityAccessor;
 import me.alphamode.star.mixin.LivingEntityAccessor;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -73,6 +76,7 @@ public abstract class StarFluid extends DirectionalFluid {
         return 100.0F;
     }
 
+    @Environment(EnvType.CLIENT)
     public int calculateSubmergedVisibility(PlayerEntity player, int currentVisibilityTicks) {
         int i = player.isSpectator() ? 10 : 1;
         return MathHelper.clamp(currentVisibilityTicks + i, 0, 600);
@@ -152,6 +156,10 @@ public abstract class StarFluid extends DirectionalFluid {
         entity.setVelocity(entity.getVelocity().add(0.0, 0.04F, 0.0));
     }
 
+    public boolean canSwimIn(Entity entity) {
+        return true;
+    }
+
     public boolean canWalkOn(LivingEntity entity, Vec3d movementInput, FluidState state) {
         return entity.canWalkOnFluid(state);
     }
@@ -159,6 +167,10 @@ public abstract class StarFluid extends DirectionalFluid {
     public abstract ParticleEffect getBubbleParticle(Entity entity);
 
     public abstract ParticleEffect getSplashParticle(Entity entity);
+
+    public double getMovementSpeed() {
+        return Entity.SPEED_IN_WATER;
+    }
 
     public SoundEvent getSplashSound(Entity entity) {
         return ((EntityAccessor) entity).callGetSplashSound();
@@ -175,5 +187,15 @@ public abstract class StarFluid extends DirectionalFluid {
      */
     public boolean canBreathe(LivingEntity entity) {
         return true;
+    }
+
+    /**
+     * See {@link ClientPlayerEntity#getUnderwaterVisibility()} for vanilla behavior.
+     * @param player The local player
+     * @return The current submerged visibility which ranges between 0.0 - 1.0
+     */
+    @Environment(EnvType.CLIENT)
+    public float getSubmergedVisibility(ClientPlayerEntity player) {
+        return 0.0f;
     }
 }
