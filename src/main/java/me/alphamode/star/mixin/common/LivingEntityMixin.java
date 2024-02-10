@@ -85,7 +85,8 @@ public abstract class LivingEntityMixin extends Entity implements StarEntity {
 
     @Inject(method = "canBreatheInWater", at = @At("RETURN"), cancellable = true)
     private void checkIfCustomFluidIsBreathable(CallbackInfoReturnable<Boolean> cir) {
-        if (getTouchingFluid().getFluid() instanceof StarFluid fluid && fluid.canBreathe((LivingEntity) (Object) this))
+        var state = getTouchingFluid();
+        if (state != null && state.getFluid() instanceof StarFluid fluid && fluid.canBreathe((LivingEntity) (Object) this))
             cir.setReturnValue(true);
     }
 }
