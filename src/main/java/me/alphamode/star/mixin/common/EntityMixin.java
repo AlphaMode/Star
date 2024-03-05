@@ -1,5 +1,6 @@
 package me.alphamode.star.mixin.common;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import me.alphamode.star.data.StarTags;
 import me.alphamode.star.extensions.StarEntity;
 import me.alphamode.star.world.fluids.StarFluid;
@@ -82,6 +83,11 @@ public abstract class EntityMixin implements StarEntity {
         return this.star$submergedInStarFluid && this.isTouchingStarFluid();
     }
 
+    @Override
+    public boolean star$getSubmergedStarState() {
+        return this.star$submergedInStarFluid;
+    }
+
     @Unique
     private boolean touchingStarFluid;
 
@@ -110,7 +116,7 @@ public abstract class EntityMixin implements StarEntity {
     }
 
     @Override
-    public FluidState getTouchingFluid() {
+    public FluidState getStarTouchingFluid() {
         return this.touchingFluid;
     }
 
@@ -132,17 +138,17 @@ public abstract class EntityMixin implements StarEntity {
             this.touchingFluid = null;
     }
 
-//    @Inject(method = "updateSwimming", at = @At("TAIL"))
-//    private void canSwimInCustomFluid(CallbackInfo ci) {
-//        if (this.touchingFluid != null && this.touchingFluid.getFluid() instanceof StarFluid starFluid && starFluid.canSwimIn((Entity) (Object) this)) {
-//            setSwimming(true);
-//            if (this.isSwimming()) {
-//                this.setSwimming(this.isSprinting() && this.isTouchingStarFluid() && !this.hasVehicle());
-//            } else {
-//                this.setSwimming(this.isSprinting() && this.isSubmergedInStarFluid() && !this.hasVehicle() && this.getWorld().getFluidState(this.blockPos).isIn(StarTags.Fluids.STAR_FLUID));
-//            }
-//        }
-//    }
+    @Inject(method = "updateSwimming", at = @At("HEAD"), cancellable = true)
+    private void canSwimInCustomFluid(CallbackInfo ci) {
+        if (this.touchingFluid != null && this.touchingFluid.getFluid() instanceof StarFluid starFluid && starFluid.canSwimIn((Entity) (Object) this)) {
+            if (this.isSwimming()) {
+                this.setSwimming(this.isSprinting() && this.isTouchingStarFluid() && !this.hasVehicle());
+            } else {
+                this.setSwimming(this.isSprinting() && this.isSubmergedInStarFluid() && !this.hasVehicle() && this.getWorld().getFluidState(this.blockPos).isIn(StarTags.Fluids.STAR_FLUID));
+            }
+            ci.cancel();;
+        }
+    }
 
     @Inject(method = "updateSubmergedInWaterState", at = @At("HEAD"))
     private void setIsSubmergedInStarFluid(CallbackInfo ci) {
@@ -159,9 +165,13 @@ public abstract class EntityMixin implements StarEntity {
         checkStarFluidState();
     }
 
-    @Inject(method = "updateWaterState", at = @At("RETURN"), cancellable = true)
-    public void star$fixReturn(CallbackInfoReturnable<Boolean> cir) {
-        if(!cir.getReturnValue() && isTouchingStarFluid())
-            cir.setReturnValue(true);
+    @ModifyReturnValue(method = "updateWaterState", at = @At("RETURN"))
+    public boolean star$fixReturn(boolean original) {
+        return original || isTouchingStarFluid();
+    }
+
+    @ModifyReturnValue(method = "isTouchingWater", at = @At("RETURN"))
+    public boolean star$touchingWater(boolean original) {
+        return original || isTouchingStarFluid();
     }
 }

@@ -15,7 +15,11 @@ public interface StarEntity {
     default void checkStarFluidState() {}
 
     @Nullable
-    default FluidState getTouchingFluid() {
+    default FluidState getStarTouchingFluid() {
         throw new RuntimeException();
+    }
+
+    default boolean star$getSubmergedStarState() {
+        return false;
     }
 }

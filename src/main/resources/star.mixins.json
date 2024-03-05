@@ -14,9 +14,8 @@
     "common.EntityMixin",
     "common.ItemStarEntityMixin",
     "common.LivingEntityMixin",
+    "common.PlayerEntityMixin",
     "frex.FluidBakedModelMixin",
-    "indium.BlockRenderInfoMixin",
-    "indium.TerrainRenderContextMixin",
     "sodium.FluidRendererAccessor",
     "sodium.FluidRendererMixin"
   ],
@@ -24,6 +23,7 @@
     "ChunkRenderInfoAccessor",
     "client.BlockRenderInfoMixin",
     "client.BuiltChunkRebuildTaskMixin",
+    "client.PlayerEntityRendererMixin",
     "client.TerrainRenderContextMixin"
   ],
   "injectors": {

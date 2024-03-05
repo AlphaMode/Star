@@ -1,6 +1,5 @@
 package me.alphamode.star.test.fluids;
 
-import me.alphamode.star.Star;
 import me.alphamode.star.test.StarTest;
 import me.alphamode.star.world.fluids.StarFluid;
 import net.minecraft.block.BlockState;

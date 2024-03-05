@@ -1,5 +1,6 @@
 package me.alphamode.star.mixin.client;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.authlib.GameProfile;
 import me.alphamode.star.extensions.StarEntity;
 import me.alphamode.star.world.fluids.StarFluid;
@@ -31,7 +32,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements St
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isFallFlying()Z"))
     public void star$knockUpwards(CallbackInfo ci) {
         if (isTouchingStarFluid() && this.input.sneaking && shouldSwimInFluids())
-            ((StarFluid) getTouchingFluid().getFluid()).knockInFlowDirection(this);
+            ((StarFluid) getStarTouchingFluid().getFluid()).knockInFlowDirection(this);
 
         double breathingDistance = getEyeY() - Entity.field_29991;
 
@@ -43,11 +44,31 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements St
             this.underwaterVisibilityTicks = fluid.calculateSubmergedVisibility(this, this.underwaterVisibilityTicks);
     }
 
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSubmergedInWater()Z"))
+    private boolean starSubmergedCheck(boolean original) {
+        return original || isSubmergedInStarFluid();
+    }
+    @ModifyExpressionValue(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isTouchingWater()Z"))
+    private boolean starWaterCheck(boolean original) {
+        return original || isTouchingStarFluid();
+    }
+
+
     @Inject(method = "getUnderwaterVisibility", at = @At("HEAD"), cancellable = true)
     private void getStarFluidVis(CallbackInfoReturnable<Float> cir) {
-        var touching = getTouchingFluid();
+        var touching = getStarTouchingFluid();
         if (touching != null && touching.getFluid() instanceof StarFluid starFluid) {
             cir.setReturnValue(starFluid.getSubmergedVisibility((ClientPlayerEntity) (Object) this));
         }
+    }
+
+    @ModifyExpressionValue(method = "isWalking", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSubmergedInWater()Z"))
+    private boolean isInStarLiquid(boolean original) {
+        return original || isSubmergedInStarFluid();
+    }
+
+    @Override
+    public boolean isSubmergedInStarFluid() {
+        return star$getSubmergedStarState();
     }
 }

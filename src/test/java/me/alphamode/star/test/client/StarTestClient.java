@@ -1,6 +1,5 @@
 package me.alphamode.star.test.client;
 
-import me.alphamode.star.Star;
 import me.alphamode.star.client.models.NorthFluidModel;
 import me.alphamode.star.client.models.UpsideDownFluidModel;
 import me.alphamode.star.client.renderers.FluidModelRenderer;

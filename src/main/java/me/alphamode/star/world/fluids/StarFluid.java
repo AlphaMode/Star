@@ -1,5 +1,6 @@
 package me.alphamode.star.world.fluids;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import me.alphamode.star.mixin.EntityAccessor;
 import me.alphamode.star.mixin.LivingEntityAccessor;
 import net.fabricmc.api.EnvType;
@@ -10,6 +11,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffects;
@@ -115,7 +117,7 @@ public abstract class StarFluid extends DirectionalFluid {
         entity.setVelocity(entity.getVelocity().add(0.0, -0.04F, 0.0));
     }
 
-    public void travelInFluid(LivingEntity entity, Vec3d movementInput, double gravity, boolean falling) {
+    public boolean travelInFluid(LivingEntity entity, Vec3d movementInput, double gravity, boolean falling) {
         double y = entity.getY();
         float movementSpeed = entity.isSprinting() ? 0.9F : ((LivingEntityAccessor) entity).callGetBaseMovementSpeedMultiplier();
         float yVelocity = 0.02F;
@@ -146,10 +148,12 @@ public abstract class StarFluid extends DirectionalFluid {
 
         entity.setVelocity(velocity.multiply(movementSpeed, 0.8F, movementSpeed));
         Vec3d fluidSpeed = entity.applyFluidMovingSpeed(gravity, falling, entity.getVelocity());
-        entity.setVelocity(fluidSpeed);
+        entity.setVelocity(fluidSpeed.getX(), fluidSpeed.getY(), fluidSpeed.getZ());
         if (entity.horizontalCollision && entity.doesNotCollide(fluidSpeed.x, fluidSpeed.y + 0.6F - entity.getY() + y, fluidSpeed.z)) {
             entity.setVelocity(fluidSpeed.x, 0.3F, fluidSpeed.z);
         }
+
+        return true;
     }
 
     public void swim(LivingEntity entity) {
@@ -178,6 +182,24 @@ public abstract class StarFluid extends DirectionalFluid {
 
     public SoundEvent getHighSpeedSplashSound(Entity entity) {
         return ((EntityAccessor) entity).callGetHighSpeedSplashSound();
+    }
+
+    /**
+     * Determiners how items should float in this fluid
+     * See {@link ItemEntity#tick()} and {@link ItemEntity#applyWaterBuoyancy()}
+     */
+    public void applyItemBuoyancy(Entity entity) {
+        Vec3d vec3d = entity.getVelocity();
+        double vel = -getFlowDirection().getOffsetY() * (vec3d.y + (double)(vec3d.y < 0.06F ? 5.0E-4F : 0.0F));
+        switch (getFlowDirection()) {
+            case DOWN, UP -> entity.setVelocity(vec3d.x * 0.99F, vel, vec3d.z * 0.99F);
+            case NORTH, SOUTH -> entity.setVelocity(vec3d.x * 0.99F, vec3d.y * 0.99F, vel);
+            case EAST, WEST -> entity.setVelocity(vel, vec3d.y * 0.99F, vec3d.z * 0.99F);
+        }
+    }
+
+    public void playSwimSound(PlayerEntity instance, Operation<Void> vanillaCallback) {
+        vanillaCallback.call(instance);
     }
 
     /**
