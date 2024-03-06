@@ -34,21 +34,21 @@ public class BuiltChunkRebuildTaskMixin {
         this.star_matrixStack = matrixStack;
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderFluid(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V"))
-    private void replaceFluidRenderer(BlockRenderManager renderManager, BlockPos blockPos, BlockRenderView blockView, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
-        final FluidBakedModel model = ((FluidRenderHandlerExtension) FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid())).getFluidModel();
-
-        if (model != null) {
-            this.star_matrixStack.push();
-            this.star_matrixStack.translate(blockPos.getX() & 15, blockPos.getY() & 15, blockPos.getZ() & 15);
-
-            ((TerrainRenderContextExtension) ((AccessChunkRendererRegion) blockView).fabric_getRenderer()).tessellateFluid(blockState, fluidState, blockPos, model, this.star_matrixStack);
-            this.star_matrixStack.pop();
-            this.star_matrixStack = null;
-            return;
-        }
-        this.star_matrixStack = null;
-
-        renderManager.renderFluid(blockPos, blockView, vertexConsumer, blockState, fluidState);
-    }
+//    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/block/BlockRenderManager;renderFluid(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V"))
+//    private void replaceFluidRenderer(BlockRenderManager renderManager, BlockPos blockPos, BlockRenderView blockView, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
+//        final FluidBakedModel model = ((FluidRenderHandlerExtension) FluidRenderHandlerRegistry.INSTANCE.get(fluidState.getFluid())).getFluidModel();
+//
+//        if (model != null) {
+//            this.star_matrixStack.push();
+//            this.star_matrixStack.translate(blockPos.getX() & 15, blockPos.getY() & 15, blockPos.getZ() & 15);
+//
+//            ((TerrainRenderContextExtension) ((AccessChunkRendererRegion) blockView).fabric_getRenderer()).tessellateFluid(blockState, fluidState, blockPos, model, this.star_matrixStack);
+//            this.star_matrixStack.pop();
+//            this.star_matrixStack = null;
+//            return;
+//        }
+//        this.star_matrixStack = null;
+//
+//        renderManager.renderFluid(blockPos, blockView, vertexConsumer, blockState, fluidState);
+//    }
 }

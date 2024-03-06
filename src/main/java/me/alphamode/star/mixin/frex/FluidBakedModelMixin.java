@@ -2,7 +2,6 @@ package me.alphamode.star.mixin.frex;
 
 import io.vram.frex.api.buffer.QuadSink;
 import io.vram.frex.api.model.BlockModel;
-import io.vram.frex.api.model.fluid.FluidModel;
 import io.vram.frex.api.model.fluid.SimpleFluidModel;
 import io.vram.frex.fabric.compat.FabricContextWrapper;
 import me.alphamode.star.client.models.FluidBakedModel;

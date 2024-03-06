@@ -45,10 +45,7 @@ public interface FluidRendererAccessor {
     void callUpdateQuad(ModelQuadView quad, WorldSlice world, BlockPos pos, LightPipeline lighter, Direction dir, float brightness, ColorProvider<FluidState> colorSampler, FluidState fluidState);
 
     @Invoker
-    void callSetVertex(ModelQuadViewMutable quad, int i, float x, float y, float z, float u, float v);
-
-    @Invoker
-    float callFluidCornerHeight(BlockRenderView world, Fluid fluid, float fluidHeight, float fluidHeightX, float fluidHeightY, BlockPos blockPos);
+    static void callSetVertex(ModelQuadViewMutable quad, int i, float x, float y, float z, float u, float v) {}
 
     @Accessor
     BlockPos.Mutable getScratchPos();

@@ -1,12 +1,12 @@
 package me.alphamode.star.client.renderers;
 
+import me.alphamode.star.client.StarFluidRenderer;
 import me.alphamode.star.client.models.FluidBakedModel;
 import me.alphamode.star.client.models.UpsideDownFluidModel;
 import me.alphamode.star.extensions.fabric.FluidRenderHandlerExtension;
 import me.alphamode.star.world.fluids.DirectionalFluid;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
@@ -40,7 +40,7 @@ import static net.minecraft.client.render.block.FluidRenderer.shouldRenderSide;
  * A Modified version of vanilla's fluid renderer to support
  * upside-down fluid rendering
  */
-public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderHandlerExtension {
+public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidRenderHandler, FluidRenderHandlerExtension {
     private final FluidBakedModel model;
     protected final Supplier<Identifier> stillGetter, flowingGetter, overlayGetter;
     protected final Sprite[] sprites;
@@ -93,7 +93,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
     public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
         DirectionalFluid fluid = (DirectionalFluid) fluidState.getFluid();
         if(fluid.getFlowDirection() == Direction.DOWN) {
-            ((FluidRenderHandlerRegistryImpl) FluidRenderHandlerRegistry.INSTANCE).renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+            FluidRenderHandler.super.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
             return;
         }
         boolean isInLava = fluidState.isIn(FluidTags.LAVA);
@@ -126,7 +126,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
             float upBrightness = world.getBrightness(Direction.UP, true);
             float northBrightness = world.getBrightness(Direction.NORTH, true);
             float westBrightness = world.getBrightness(Direction.WEST, true);
-            float fluidHeight = this.getFluidHeight(world, fluid, pos, blockState, fluidState);
+            float fluidHeight = fluidHeight(world, fluid, pos);
             float northEastHeight, northWestHeight, southEastHeight, southWestHeight;
             if (fluidHeight >= 1.0F) {
                 northEastHeight = 1.0F;
@@ -134,14 +134,14 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                 southEastHeight = 1.0F;
                 southWestHeight = 1.0F;
             } else {
-                float s = this.getFluidHeight(world, fluid, pos.north(), northState, northFluidState);
-                float t = this.getFluidHeight(world, fluid, pos.south(), southState, southFluidState);
-                float u = this.getFluidHeight(world, fluid, pos.east(), eastState, eastFluidState);
-                float v = this.getFluidHeight(world, fluid, pos.west(), westState, westFluidState);
-                northEastHeight = this.getHeightToRenderFluid(world, fluid, fluidHeight, s, u, pos.offset(Direction.NORTH).offset(Direction.EAST));
-                northWestHeight = this.getHeightToRenderFluid(world, fluid, fluidHeight, s, v, pos.offset(Direction.NORTH).offset(Direction.WEST));
-                southEastHeight = this.getHeightToRenderFluid(world, fluid, fluidHeight, t, u, pos.offset(Direction.SOUTH).offset(Direction.EAST));
-                southWestHeight = this.getHeightToRenderFluid(world, fluid, fluidHeight, t, v, pos.offset(Direction.SOUTH).offset(Direction.WEST));
+                float heightNorth = fluidHeight(world, fluid, scratchPos.set(pos, Direction.NORTH));
+                float heightSouth = fluidHeight(world, fluid, scratchPos.set(pos, Direction.SOUTH));
+                float heightEast = fluidHeight(world, fluid, scratchPos.set(pos, Direction.EAST));
+                float heightWest = fluidHeight(world, fluid, scratchPos.set(pos, Direction.WEST));
+                northWestHeight = fluidCornerHeight(world, fluid, fluidHeight, heightNorth, heightWest, scratchPos.set(pos).move(Direction.NORTH).move(Direction.WEST));
+                southWestHeight = fluidCornerHeight(world, fluid, fluidHeight, heightSouth, heightWest, scratchPos.set(pos).move(Direction.SOUTH).move(Direction.WEST));
+                southEastHeight = fluidCornerHeight(world, fluid, fluidHeight, heightSouth, heightEast, scratchPos.set(pos).move(Direction.SOUTH).move(Direction.EAST));
+                northEastHeight = fluidCornerHeight(world, fluid, fluidHeight, heightNorth, heightEast, scratchPos.set(pos).move(Direction.NORTH).move(Direction.EAST));
             }
 
             double chunkX = pos.getX() & 15;
@@ -157,11 +157,11 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                 float z, ab, ad, af, aa, ac, ae, ag;
                 if (vec3d.x == 0.0 && vec3d.z == 0.0) {
                     Sprite sprite = sprites[0];
-                    z = sprite.getFrameU(0.0);
-                    aa = sprite.getFrameV(0.0);
+                    z = sprite.getFrameU(0.0F);
+                    aa = sprite.getFrameV(0.0F);
                     ab = z;
-                    ac = sprite.getFrameV(16.0);
-                    ad = sprite.getFrameU(16.0);
+                    ac = sprite.getFrameV(1.0F);
+                    ad = sprite.getFrameU(1.0F);
                     ae = ac;
                     af = ad;
                     ag = aa;
@@ -170,15 +170,15 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                     float ah = (float) MathHelper.atan2(vec3d.z, vec3d.x) - (float) (Math.PI / 2);
                     float ai = MathHelper.sin(ah) * 0.25F;
                     float aj = MathHelper.cos(ah) * 0.25F;
-                    float ak = 8.0F;
-                    z = sprite.getFrameU(8.0F + (-aj - ai) * 16.0F);
-                    aa = sprite.getFrameV(8.0F + (-aj + ai) * 16.0F);
-                    ab = sprite.getFrameU(8.0F + (-aj + ai) * 16.0F);
-                    ac = sprite.getFrameV(8.0F + (aj + ai) * 16.0F);
-                    ad = sprite.getFrameU(8.0F + (aj + ai) * 16.0F);
-                    ae = sprite.getFrameV(8.0F + (aj - ai) * 16.0F);
-                    af = sprite.getFrameU(8.0F + (aj - ai) * 16.0F);
-                    ag = sprite.getFrameV(8.0F + (-aj - ai) * 16.0F);
+                    float ak = 0.5F;
+                    z = sprite.getFrameU(0.5F + (-aj - ai));
+                    aa = sprite.getFrameV(0.5F + (-aj + ai));
+                    ab = sprite.getFrameU(0.5F + (-aj + ai));
+                    ac = sprite.getFrameV(0.5F + (aj + ai));
+                    ad = sprite.getFrameU(0.5F + (aj + ai));
+                    ae = sprite.getFrameV(0.5F + (aj - ai));
+                    af = sprite.getFrameU(0.5F + (aj - ai));
+                    ag = sprite.getFrameV(0.5F + (-aj - ai));
                 }
 
                 float al = (z + ab + ad + af) / 4.0F;
@@ -194,7 +194,7 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                 ac = MathHelper.lerp(ak, ac, ah);
                 ae = MathHelper.lerp(ak, ae, ah);
                 ag = MathHelper.lerp(ak, ag, ah);
-                int am = this.getLight(world, pos);
+                int am = getLight(world, pos);
                 float an = upBrightness * r;
                 float ao = upBrightness * g;
                 float ap = upBrightness * b; // The code below renders the fluid slope
@@ -228,48 +228,48 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
             int light = this.getLight(world, pos);
 
             for (Direction direction : Direction.Type.HORIZONTAL) {
-                float sideY, endSideY;
-                double startX, startZ, endX, endZ;
+                float c1, c2;
+                double x1, z1, x2, z2;
                 boolean shouldRender;
                 switch (direction) { // Handles how each side should look when rendering
                     case NORTH:
-                        sideY = northWestHeight;
-                        endSideY = northEastHeight;
-                        startX = chunkX;
-                        endX = chunkX + 1.0;
-                        startZ = chunkZ + 0.001F;
-                        endZ = chunkZ + 0.001F;
+                        c1 = northWestHeight;
+                        c2 = northEastHeight;
+                        x1 = chunkX;
+                        x2 = chunkX + 1.0;
+                        z1 = chunkZ + EPSILON;
+                        z2 = chunkZ + EPSILON;
                         shouldRender = renderNorthSide;
                         break;
                     case SOUTH:
-                        sideY = southEastHeight;
-                        endSideY = southWestHeight;
-                        startX = chunkX + 1.0;
-                        endX = chunkX;
-                        startZ = chunkZ + 1.0 - 0.001F;
-                        endZ = chunkZ + 1.0 - 0.001F;
+                        c1 = southEastHeight;
+                        c2 = southWestHeight;
+                        x1 = chunkX + 1.0;
+                        x2 = chunkX;
+                        z1 = chunkZ + 1.0 - EPSILON;
+                        z2 = chunkZ + 1.0 - EPSILON;
                         shouldRender = renderSouthSide;
                         break;
                     case WEST:
-                        sideY = southWestHeight;
-                        endSideY = northWestHeight;
-                        startX = chunkX + 0.001F;
-                        endX = chunkX + 0.001F;
-                        startZ = chunkZ + 1.0;
-                        endZ = chunkZ;
+                        c1 = southWestHeight;
+                        c2 = northWestHeight;
+                        x1 = chunkX + EPSILON;
+                        x2 = chunkX + EPSILON;
+                        z1 = chunkZ + 1.0;
+                        z2 = chunkZ;
                         shouldRender = renderWestSide;
                         break;
                     default:
-                        sideY = northEastHeight;
-                        endSideY = southEastHeight;
-                        startX = chunkX + 1.0 - 0.001F;
-                        endX = chunkX + 1.0 - 0.001F;
-                        startZ = chunkZ;
-                        endZ = chunkZ + 1.0;
+                        c1 = northEastHeight;
+                        c2 = southEastHeight;
+                        x1 = chunkX + 1.0 - EPSILON;
+                        x2 = chunkX + 1.0 - EPSILON;
+                        z1 = chunkZ;
+                        z2 = chunkZ + 1.0;
                         shouldRender = renderEastSide;
                 }
 
-                if (shouldRender && !isSideCovered(world, pos, direction, Math.max(sideY, endSideY), world.getBlockState(pos.offset(direction)))) {
+                if (shouldRender && !isSideCovered(world, pos, direction, Math.max(c1, c2), world.getBlockState(pos.offset(direction)))) {
                     BlockPos blockPos = pos.offset(direction);
                     Sprite sprite2 = sprites[1];
                     if (!isInLava) {
@@ -279,26 +279,26 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
                         }
                     }
 
-                    float startU = sprite2.getFrameU(0.0);
-                    float endV = sprite2.getFrameV((1.0F - sideY) * 16.0F * 0.5F);
+                    float startU = sprite2.getFrameU(0.0F);
+                    float endV = sprite2.getFrameV((1.0F - c1) * 0.5F);
 
-                    float ap = sprite2.getFrameU(8.0);
-                    float ax = sprite2.getFrameV((1.0F - endSideY) * 16.0F * 0.5F);
-                    float ay = sprite2.getFrameV(8.0);
+                    float ap = sprite2.getFrameU(0.5F);
+                    float ax = sprite2.getFrameV((1.0F - c2) * 0.5F);
+                    float ay = sprite2.getFrameV(0.5F);
                     float directionBrightness = direction.getAxis() == Direction.Axis.Z ? northBrightness : westBrightness;
                     float red = upBrightness * directionBrightness * r;
                     float blue = upBrightness * directionBrightness * g;
                     float green = upBrightness * directionBrightness * b;
 
-                    this.vertex(vertexConsumer, endX, chunkY + 1 - endSideY, endZ, red, blue, green, ap, ax, light);
-                    this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, startU, endV, light);
-                    this.vertex(vertexConsumer, startX, chunkY + 1 - yOffset, startZ, red, blue, green, startU, ay, light);
-                    this.vertex(vertexConsumer, endX, chunkY + 1 - yOffset, endZ, red, blue, green, ap, ay, light);
+                    this.vertex(vertexConsumer, x2, chunkY + 1 - c2, z2, red, blue, green, ap, ax, light);
+                    this.vertex(vertexConsumer, x1, chunkY + 1 - c1, z1, red, blue, green, startU, endV, light);
+                    this.vertex(vertexConsumer, x1, chunkY + 1 - yOffset, z1, red, blue, green, startU, ay, light);
+                    this.vertex(vertexConsumer, x2, chunkY + 1 - yOffset, z2, red, blue, green, ap, ay, light);
                     if (getFluidSprites(world, blockPos, fluidState).length == 3 && sprite2 != getFluidSprites(world, blockPos, fluidState)[2]) { // Render overlay (inside of the fluid)
-                        this.vertex(vertexConsumer, endX, chunkY + 1 - yOffset, endZ, red, blue, green, startU, ay, light);
-                        this.vertex(vertexConsumer, startX, chunkY + 1 - yOffset, startZ, red, blue, green, ap, ay, light);
-                        this.vertex(vertexConsumer, startX, chunkY + 1 - sideY, startZ, red, blue, green, ap, ax, light);
-                        this.vertex(vertexConsumer, endX, chunkY + 1 - endSideY, endZ, red, blue, green, startU, endV, light);
+                        this.vertex(vertexConsumer, x2, chunkY + 1 - yOffset, z2, red, blue, green, startU, ay, light);
+                        this.vertex(vertexConsumer, x1, chunkY + 1 - yOffset, z1, red, blue, green, ap, ay, light);
+                        this.vertex(vertexConsumer, x1, chunkY + 1 - c1, z1, red, blue, green, ap, ax, light);
+                        this.vertex(vertexConsumer, x2, chunkY + 1 - c2, z2, red, blue, green, startU, endV, light);
                     }
                 }
             }
@@ -308,51 +308,6 @@ public class UpsideDownFluidRenderer implements FluidRenderHandler, FluidRenderH
     @Override
     public FluidBakedModel getFluidModel() {
         return this.model;
-    }
-
-    public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos) {
-        BlockState blockState = blockRenderView.getBlockState(blockPos);
-        return getFluidHeight(blockRenderView, fluid, blockPos, blockState, blockState.getFluidState());
-    }
-
-    public static float getHeightToRenderFluid(BlockRenderView world, DirectionalFluid fluid, float fluidHeight, float fluidHeightX, float fluidHeightY, BlockPos blockPos) {
-        if (!(fluidHeightY >= 1.0F) && !(fluidHeightX >= 1.0F)) {
-            float[] fs = new float[2];
-            if (fluidHeightY > 0.0F || fluidHeightX > 0.0F) {
-                float i = getFluidHeight(world, fluid, blockPos);
-                if (i >= 1.0F) {
-                    return 1.0F;
-                }
-
-                offsetHeight(fs, i);
-            }
-
-            offsetHeight(fs, fluidHeight);
-            offsetHeight(fs, fluidHeightY);
-            offsetHeight(fs, fluidHeightX);
-            return fs[0] / fs[1];
-        } else {
-            return 1.0F;
-        }
-    }
-
-    public static void offsetHeight(float[] fs, float f) {
-        if (f >= 0.8F) {
-            fs[0] += f * 10.0F;
-            fs[1] += 10.0F;
-        } else if (f >= 0.0F) {
-            fs[0] += f;
-            fs[1]++;
-        }
-    }
-
-    public static float getFluidHeight(BlockRenderView blockRenderView, DirectionalFluid fluid, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
-        if (fluid.matchesType(fluidState.getFluid())) {
-            BlockState blockState2 = blockRenderView.getBlockState(blockPos.offset(fluid.getFlowDirection().getOpposite()));
-            return fluid.matchesType(blockState2.getFluidState().getFluid()) ? 1.0F : fluidState.getHeight();
-        } else {
-            return !blockState.isSolid() ? 0.0F : -1.0F;
-        }
     }
 
     public static int getLight(BlockRenderView world, BlockPos pos) {

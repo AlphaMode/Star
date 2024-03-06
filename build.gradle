@@ -1,6 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
-    id 'io.github.juuxel.loom-quiltflower' version '1.+'
+    id 'fabric-loom' version '1.5-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -26,10 +25,10 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 //    modImplementation "io.vram:frex-fabric-mc118:6.0.+"
-    modCompileOnly("maven.modrinth:sodium:mc1.20.1-0.5.2")
-    modCompileOnly("maven.modrinth:indium:1.0.25+mc1.20.1")
+    modCompileOnly("maven.modrinth:sodium:mc1.20.4-0.5.8")
+    modCompileOnly("maven.modrinth:indium:1.0.30+mc1.20.4")
 
-    modCompileOnly "io.vram:canvas-fabric:20.0.2612"
+    modCompileOnly "io.vram:frex-fabric:20.4.355"
 }
 
 loom {

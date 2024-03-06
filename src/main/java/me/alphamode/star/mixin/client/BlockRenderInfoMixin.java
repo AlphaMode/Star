@@ -18,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BlockRenderInfoMixin implements BlockRenderInfoExtension {
     @Shadow public BlockPos blockPos;
     @Shadow public BlockState blockState;
-    @Shadow public long seed;
-    @Shadow private boolean defaultAo;
-    @Shadow private RenderLayer defaultLayer;
-    @Shadow private boolean useAo;
+    @Shadow long seed;
+    @Shadow boolean defaultAo;
+    @Shadow RenderLayer defaultLayer;
+    @Shadow boolean useAo;
     @Shadow private int cullCompletionFlags;
     @Shadow private int cullResultFlags;
     public FluidState star_fluidState;
