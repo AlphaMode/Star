@@ -1,29 +1,17 @@
 package me.alphamode.star;
 
-import me.alphamode.star.world.fluids.DirectionalFluid;
-import me.alphamode.star.world.fluids.TestFluid;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
-@SuppressWarnings("UnstableApiUsage")
+@ApiStatus.Internal
 public class Star implements ModInitializer {
 
     public static final String MOD_ID = "star";
 
     public static Identifier getResource(String path) {
-        return new Identifier(MOD_ID, path);
+        return Identifier.of(MOD_ID, path);
     }
-
-    public static final DirectionalFluid STILL = Registry.register(Registries.FLUID, getResource("test_still"), new TestFluid.Still());
-    public static final DirectionalFluid FLOWING = Registry.register(Registries.FLUID, getResource("test_flowing"), new TestFluid.Flowing());
-
-    public static final Block FLUID = Registry.register(Registries.BLOCK, getResource("test_fluid"), new FluidBlock(STILL, FabricBlockSettings.copy(Blocks.WATER)));
 
     @Override
     public void onInitialize() {

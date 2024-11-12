@@ -26,8 +26,5 @@ public class StarClient implements ClientModInitializer {
         });
         ModelSwapper.init();
         CTModelRegistry.init();
-        FluidRenderHandlerRegistry.INSTANCE.register(Star.STILL, Star.FLOWING, new UpsideDownFluidRenderer());
-        BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getTranslucent(), Star.STILL, Star.FLOWING);
-//        ModelSwapper.swapBlockModel(Blocks.GRASS_BLOCK, bakedModel -> new UpsideDownFluidModel());
     }
 }

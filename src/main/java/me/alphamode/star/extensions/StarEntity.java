@@ -12,4 +12,8 @@ public interface StarEntity {
     default FluidState getTouchingFluid() {
         throw new RuntimeException();
     }
+
+    default void updateStarFluidStates() {
+        throw new RuntimeException();
+    }
 }

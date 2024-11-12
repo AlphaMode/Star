@@ -1,5 +1,6 @@
 package me.alphamode.star.mixin.common;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import me.alphamode.star.data.StarTags;
 import me.alphamode.star.extensions.StarEntity;
 import net.minecraft.entity.Entity;
@@ -9,8 +10,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemStarEntityMixin extends Entity implements StarEntity {
@@ -23,11 +22,12 @@ public abstract class ItemStarEntityMixin extends Entity implements StarEntity {
         this.setVelocity(vec3d.x * 0.99F, vec3d.y - (double)(vec3d.y < 0.06F ? 5.0E-4F : 0.0F), vec3d.z * 0.99F);
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;getStandingEyeHeight()F"))
-    public void star$upsideDownFluidItems(CallbackInfo ci) {
-        float f = this.getStandingEyeHeight() - 0.11111111F;
-        if (this.isTouchingUpsideDownFluid() && this.getFluidHeight(StarTags.Fluids.UPSIDE_DOWN_FLUID) > (double)f) {
+    @WrapWithCondition(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;applyGravity()V"))
+    public boolean star$upsideDownFluidItems(ItemEntity instance) {
+        if (this.isTouchingUpsideDownFluid() && this.getFluidHeight(StarTags.Fluids.STAR_FLUID) > 0.1F) {
             applyUpsideDownBuoyancy();
+            return false;
         }
+        return true;
     }
 }

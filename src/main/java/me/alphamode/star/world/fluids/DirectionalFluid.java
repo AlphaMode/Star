@@ -140,7 +140,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
     }
 
     @Override
-    protected int getFlowSpeedBetween(WorldView world, BlockPos blockPos, int i, Direction direction, BlockState blockState, BlockPos blockPos2, Short2ObjectMap<Pair<BlockState, FluidState>> short2ObjectMap, Short2BooleanMap short2BooleanMap) {
+    protected int getMinFlowDownDistance(WorldView world, BlockPos blockPos, int i, Direction direction, BlockState blockState, BlockPos blockPos2, Short2ObjectMap<Pair<BlockState, FluidState>> short2ObjectMap, Short2BooleanMap short2BooleanMap) {
         int j = 1000;
         for (Direction direction2 : Direction.Type.HORIZONTAL) { // TODO: Sideways fluid support
             int k;
@@ -162,7 +162,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
             if (bl) {
                 return i;
             }
-            if (i >= this.getFlowSpeed(world) || (k = this.getFlowSpeedBetween(world, blockPos3, i + 1, direction2.getOpposite(), blockState2, blockPos2, short2ObjectMap, short2BooleanMap)) >= j) continue;
+            if (i >= this.getMaxFlowDistance(world) || (k = this.getMinFlowDownDistance(world, blockPos3, i + 1, direction2.getOpposite(), blockState2, blockPos2, short2ObjectMap, short2BooleanMap)) >= j) continue;
             j = k;
         }
         return j;
@@ -213,7 +213,7 @@ public abstract class DirectionalFluid extends FlowableFluid {
                 BlockState blockState2 = world.getBlockState(blockPos2);
                 return this.canFlowDownTo(world, this.getFlowing(), blockPos, blockState, blockPos2, blockState2);
             });
-            int j = bl ? 0 : this.getFlowSpeedBetween(world, blockPos, 1, direction.getOpposite(), blockState, pos, short2ObjectMap, short2BooleanMap);
+            int j = bl ? 0 : this.getMinFlowDownDistance(world, blockPos, 1, direction.getOpposite(), blockState, pos, short2ObjectMap, short2BooleanMap);
             if (j < i) {
                 map.clear();
             }

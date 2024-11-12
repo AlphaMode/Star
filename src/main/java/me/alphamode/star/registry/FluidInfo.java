@@ -1,7 +1,6 @@
 package me.alphamode.star.registry;
 
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
@@ -43,22 +42,22 @@ public class FluidInfo {
     public void register(Identifier id) {
         still = Registry.register(Registries.FLUID, id, still);
         flowing = Registry.register(Registries.FLUID, id + "_flowing", flowing);
-        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, FabricBlockSettings.copy(Blocks.WATER)));
-        bucket = Registry.register(Registries.ITEM, id + "_bucket", new BucketItem(still, new FabricItemSettings()));
+        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, AbstractBlock.Settings.copy(Blocks.WATER)));
+        bucket = Registry.register(Registries.ITEM, id + "_bucket", new BucketItem(still, new Item.Settings()));
     }
 
     public void register(Identifier id, Item.Settings settings) {
         still = Registry.register(Registries.FLUID, id, still);
         flowing = Registry.register(Registries.FLUID, id + "_flowing", flowing);
-        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, FabricBlockSettings.copy(Blocks.WATER)));
+        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, AbstractBlock.Settings.copy(Blocks.WATER)));
         bucket = Registry.register(Registries.ITEM, id + "_bucket", new BucketItem(still, settings));
     }
 
     public void register(Identifier id, Block.Settings settings) {
         still = Registry.register(Registries.FLUID, id, still);
         flowing = Registry.register(Registries.FLUID, id + "_flowing", flowing);
-        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, FabricBlockSettings.copy(Blocks.WATER)));
-        bucket = Registry.register(Registries.ITEM, id + "_bucket", new BucketItem(still, new FabricItemSettings()));
+        block = Registry.register(Registries.BLOCK, id + "_fluid", new FluidBlock((FlowableFluid) still, AbstractBlock.Settings.copy(Blocks.WATER)));
+        bucket = Registry.register(Registries.ITEM, id + "_bucket", new BucketItem(still, new Item.Settings()));
     }
 
     public void register(Identifier id, Item.Settings itemSettings, Block.Settings blockSettings) {

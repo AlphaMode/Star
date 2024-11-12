@@ -16,4 +16,3 @@ accessible field net/minecraft/entity/Entity random Lnet/minecraft/util/math/ran
 accessible method net/minecraft/client/render/block/FluidRenderer isSameFluid (Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z
 
 accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask
-accessible class net/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk$RebuildTask$RenderData

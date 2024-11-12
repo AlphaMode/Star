@@ -4,7 +4,7 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(BlockRenderInfo.class)
+@Mixin(value = BlockRenderInfo.class, remap = false)
 public interface BlockRenderInfoAccessor {
     @Accessor
     void setRecomputeSeed(boolean recomputeSeed);

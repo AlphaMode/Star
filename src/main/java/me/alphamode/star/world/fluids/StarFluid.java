@@ -9,6 +9,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -54,7 +55,7 @@ public abstract class StarFluid extends DirectionalFluid {
     }
 
     @Override
-    protected int getFlowSpeed(WorldView worldView) {
+    protected int getMaxFlowDistance(WorldView worldView) {
         return 4;
     }
 
@@ -113,24 +114,20 @@ public abstract class StarFluid extends DirectionalFluid {
 
     public void travelInFluid(LivingEntity entity, Vec3d movementInput, double gravity, boolean falling) {
         double y = entity.getY();
-        float movementSpeed = entity.isSprinting() ? 0.9F : ((LivingEntityAccessor) entity).callGetBaseMovementSpeedMultiplier();
+        float speedMultiplier = entity.isSprinting() ? 0.9F : ((LivingEntityAccessor) entity).callGetBaseMovementSpeedMultiplier();
         float yVelocity = 0.02F;
-        float depthStrider = (float) EnchantmentHelper.getDepthStrider(entity);
-        if (depthStrider > 3.0F) {
-            depthStrider = 3.0F;
-        }
-
+        float movementEfficiency = (float) entity.getAttributeValue(EntityAttributes.GENERIC_WATER_MOVEMENT_EFFICIENCY);
         if (!entity.isOnGround()) {
-            depthStrider *= 0.5F;
+            movementEfficiency *= 0.5F;
         }
 
-        if (depthStrider > 0.0F) {
-            movementSpeed += (0.54600006F - movementSpeed) * depthStrider / 3.0F;
-            yVelocity += (entity.getMovementSpeed() - yVelocity) * depthStrider / 3.0F;
+        if (movementEfficiency > 0.0F) {
+            speedMultiplier += (0.54600006F - speedMultiplier) * movementEfficiency;
+            yVelocity += (entity.getMovementSpeed() - yVelocity) * movementEfficiency;
         }
 
         if (entity.hasStatusEffect(StatusEffects.DOLPHINS_GRACE)) {
-            movementSpeed = 0.96F;
+            speedMultiplier = 0.96F;
         }
 
         entity.updateVelocity(yVelocity, movementInput);
@@ -140,7 +137,7 @@ public abstract class StarFluid extends DirectionalFluid {
             velocity = new Vec3d(velocity.x, 0.2, velocity.z);
         }
 
-        entity.setVelocity(velocity.multiply(movementSpeed, 0.8F, movementSpeed));
+        entity.setVelocity(velocity.multiply(speedMultiplier, 0.8F, speedMultiplier));
         Vec3d fluidSpeed = entity.applyFluidMovingSpeed(gravity, falling, entity.getVelocity());
         entity.setVelocity(fluidSpeed);
         if (entity.horizontalCollision && entity.doesNotCollide(fluidSpeed.x, fluidSpeed.y + 0.6F - entity.getY() + y, fluidSpeed.z)) {

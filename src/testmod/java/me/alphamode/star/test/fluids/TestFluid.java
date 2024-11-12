@@ -1,9 +1,11 @@
-package me.alphamode.star.world.fluids;
+package me.alphamode.star.test.fluids;
 
-import me.alphamode.star.Star;
+import me.alphamode.star.test.StarTest;
+import me.alphamode.star.world.fluids.StarFluid;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.Entity;
+import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
@@ -20,12 +22,12 @@ public abstract class TestFluid extends StarFluid {
 
     @Override
     public Fluid getFlowing() {
-        return Star.FLOWING;
+        return StarTest.FLOWING;
     }
 
     @Override
     public Fluid getStill() {
-        return Star.STILL;
+        return StarTest.STILL;
     }
 
     @Override
@@ -35,7 +37,7 @@ public abstract class TestFluid extends StarFluid {
 
     @Override
     protected BlockState toBlockState(FluidState state) {
-        return Star.FLUID.getDefaultState().with(FluidBlock.LEVEL, getBlockStateLevel(state));
+        return StarTest.FLUID.getDefaultState().with(FluidBlock.LEVEL, FlowableFluid.getBlockStateLevel(state));
     }
 
     @Override
@@ -54,11 +56,11 @@ public abstract class TestFluid extends StarFluid {
 
         protected void appendProperties(StateManager.Builder<Fluid, FluidState> builder) {
             super.appendProperties(builder);
-            builder.add(LEVEL);
+            builder.add(FlowableFluid.LEVEL);
         }
 
         public int getLevel(FluidState state) {
-            return state.get(LEVEL);
+            return state.get(FlowableFluid.LEVEL);
         }
 
         public boolean isStill(FluidState state) {

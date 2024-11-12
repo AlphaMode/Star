@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
 
 import java.util.Map;
@@ -16,5 +17,5 @@ public interface ModelBakeEvent {
             e.onModelBake(modelManager, existingModels, loader);
     });
 
-    void onModelBake(BakedModelManager modelManager, Map<Identifier, BakedModel> existingModels, ModelLoader loader);
+    void onModelBake(BakedModelManager modelManager, Map<ModelIdentifier, BakedModel> existingModels, ModelLoader loader);
 }

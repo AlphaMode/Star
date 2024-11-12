@@ -11,6 +11,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,8 +23,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Mixin(Entity.class)
-public class EntityMixin implements StarEntity {
+public abstract class EntityMixin implements StarEntity {
+
+    private final Set<FluidState> star$fluidStates = new HashSet<>();
 
     @Shadow
     public @Nullable Entity getVehicle() {
@@ -52,6 +58,14 @@ public class EntityMixin implements StarEntity {
 
     @Shadow @Final private static double SPEED_IN_WATER;
 
+    @Shadow public abstract double getEyeY();
+
+    @Shadow public abstract World getWorld();
+
+    @Shadow public abstract double getX();
+
+    @Shadow public abstract double getZ();
+
     @Unique
     @Override
     public boolean isTouchingUpsideDownFluid() {
@@ -69,7 +83,7 @@ public class EntityMixin implements StarEntity {
     public void checkUpsideDownState() {
         if (this.getVehicle() instanceof BoatEntity) {
             this.touchingUpsideDownFluid = false;
-        } else if (this.updateMovementInFluid(StarTags.Fluids.UPSIDE_DOWN_FLUID, SPEED_IN_WATER)) {
+        } else if (this.updateMovementInFluid(StarTags.Fluids.STAR_FLUID, SPEED_IN_WATER)) {
             if (!this.touchingUpsideDownFluid && !this.firstUpdate) {
                 if (this.touchingFluid.getFluid() instanceof StarFluid starFluid)
                     starFluid.onSwimmingStart((Entity) (Object) this);
@@ -90,6 +104,27 @@ public class EntityMixin implements StarEntity {
         return this.touchingFluid;
     }
 
+    @Override
+    public void updateStarFluidStates() {
+        this.star$fluidStates.clear();
+        double eyeHeight = this.getEyeY();
+        if (this.getVehicle() instanceof BoatEntity boatEntity
+                && !boatEntity.isSubmergedInWater()
+                && boatEntity.getBoundingBox().maxY >= eyeHeight
+                && boatEntity.getBoundingBox().minY <= eyeHeight) {
+            return;
+        }
+
+        BlockPos pos = BlockPos.ofFloored(getX(), eyeHeight, getZ());
+        FluidState fluidState = this.getWorld().getFluidState(pos);
+        if (fluidState.getFluid() instanceof StarFluid) {
+            double fluidHeight = (float) pos.getY() + fluidState.getHeight(getWorld(), pos);
+            if (fluidHeight > eyeHeight) {
+                star$fluidStates.add(fluidState);
+            }
+        }
+    }
+
     @Inject(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;isIn(Lnet/minecraft/registry/tag/TagKey;)Z"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void captureTouchingFluid(TagKey<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int i, int j, int k, int l, int m, int n, double d, boolean bl, boolean bl2, Vec3d vec3d, int o, BlockPos.Mutable mutable, int p, int q, int r, FluidState fluidState) {
         if (fluidState.isIn(tag))
@@ -105,6 +140,11 @@ public class EntityMixin implements StarEntity {
     @Inject(method = "updateSubmergedInWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;streamTags()Ljava/util/stream/Stream;"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void captureTagsFluid(CallbackInfo ci, double d, Entity entity, BlockPos blockPos, FluidState fluidState, double e) {
         this.touchingFluid = fluidState;
+    }
+
+    @Inject(method = "updateSubmergedInWaterState", at = @At("HEAD"))
+    private void tickStarFluids(CallbackInfo ci) {
+        updateStarFluidStates();
     }
 
     @Inject(method = "updateWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;checkWaterState()V"))

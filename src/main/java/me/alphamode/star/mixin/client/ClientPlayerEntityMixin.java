@@ -32,7 +32,7 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity implements St
         if (isTouchingUpsideDownFluid() && this.input.sneaking && shouldSwimInFluids())
             ((StarFluid) getTouchingFluid().getFluid()).knockInFlowDirection(this);
 
-        double breathingDistance = getEyeY() - Entity.field_29991;
+        double breathingDistance = getEyeY();
 
 
         BlockPos blockPos = BlockPos.ofFloored(getX(), breathingDistance, getZ());

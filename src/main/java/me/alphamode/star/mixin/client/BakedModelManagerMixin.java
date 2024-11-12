@@ -6,6 +6,7 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.SpriteAtlasManager;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Mixin(BakedModelManager.class)
 public class BakedModelManagerMixin {
     @Inject(method = "bake", at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/DefaultedRegistry;iterator()Ljava/util/Iterator;"), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void star$modelLoad(Profiler profiler, Map<Identifier, SpriteAtlasManager.AtlasPreparation> preparations, ModelLoader modelLoader, CallbackInfoReturnable<Object> cir, Multimap multimap, Map<Identifier, BakedModel> models) {
+    public void star$modelLoad(Profiler profiler, Map<Identifier, SpriteAtlasManager.AtlasPreparation> preparations, ModelLoader modelLoader, CallbackInfoReturnable<Object> cir, Multimap multimap, Map<ModelIdentifier, BakedModel> models) {
         ModelBakeEvent.ON_MODEL_BAKE.invoker().onModelBake((BakedModelManager) (Object) this, models, modelLoader);
     }
 }

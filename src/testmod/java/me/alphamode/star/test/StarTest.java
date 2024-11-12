@@ -1,0 +1,30 @@
+package me.alphamode.star.test;
+
+import me.alphamode.star.test.fluids.TestFluid;
+import me.alphamode.star.world.fluids.DirectionalFluid;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FluidBlock;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.util.Identifier;
+
+public class StarTest implements ModInitializer {
+    public static final String MOD_ID = "star_test";
+
+    public static Identifier getResource(String path) {
+        return Identifier.of(MOD_ID, path);
+    }
+
+    public static final DirectionalFluid STILL = Registry.register(Registries.FLUID, getResource("test_still"), new TestFluid.Still());
+    public static final DirectionalFluid FLOWING = Registry.register(Registries.FLUID, getResource("test_flowing"), new TestFluid.Flowing());
+
+    public static final Block FLUID = Registry.register(Registries.BLOCK, getResource("test_fluid"), new FluidBlock(STILL, FabricBlockSettings.copy(Blocks.WATER)));
+
+    @Override
+    public void onInitialize() {
+
+    }
+}

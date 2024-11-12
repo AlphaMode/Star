@@ -4,17 +4,10 @@ import me.alphamode.star.data.StarTags;
 import me.alphamode.star.extensions.StarEntity;
 import me.alphamode.star.world.fluids.StarFluid;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -28,25 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements StarEntity {
-    @Shadow public abstract Vec3d applyFluidMovingSpeed(double d, boolean bl, Vec3d vec3d);
-
-    @Shadow public abstract boolean hasStatusEffect(StatusEffect effect);
-
-    @Shadow public abstract float getMovementSpeed();
-
-    @Shadow protected abstract float getBaseMovementSpeedMultiplier();
-
     @Shadow protected abstract boolean shouldSwimInFluids();
-
-    @Shadow public abstract boolean canWalkOnFluid(FluidState fluidState);
-
-    @Shadow public abstract boolean isClimbing();
-
-    @Shadow protected abstract void swimUpward(TagKey<Fluid> fluid);
-
-    @Shadow private int jumpingCooldown;
-
-    @Shadow protected abstract void jump();
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -64,7 +39,7 @@ public abstract class LivingEntityMixin extends Entity implements StarEntity {
         FluidState fluid = getTouchingFluid();
         if (fluid == null)
             return;
-        double fluidHeight = this.getFluidHeight(StarTags.Fluids.UPSIDE_DOWN_FLUID);
+        double fluidHeight = this.getFluidHeight(StarTags.Fluids.STAR_FLUID);
 
         boolean touchingFluid = fluid.getFluid() instanceof StarFluid && fluidHeight > 0.0;
         double l = this.getSwimHeight();

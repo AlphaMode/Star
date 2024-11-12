@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "star_test",
+  "version": "1.0",
+  "name": "Star Test",
+  "description": "Used as a test mod for testing various features of Star!",
+  "authors": [
+    "AlphaMode"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.alphamode.star.test.StarTest"
+    ],
+    "client": [
+      "me.alphamode.star.test.client.StarTestClient"
+    ]
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1297": ["me/alphamode/star/extensions/StarEntity"],
+      "net/fabricmc/fabric/api/client/render/fluid/v1/FluidRenderHandler": ["me/alphamode/star/extensions/fabric/FluidRenderHandlerExtension"]
+    }
+  }
+}

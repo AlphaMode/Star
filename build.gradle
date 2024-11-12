@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -15,6 +15,42 @@ repositories {
     maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/star.accesswidener")
+    runConfigs.forEach {
+        it.property("mixin.hotSwap", "true")
+    }
+
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated(true)
+            name = "Testmod Client"
+            source sourceSets.testmod
+        }
+        testmodServer {
+            server()
+            ideConfigGenerated(true)
+            name = "Testmod Server"
+            source sourceSets.testmod
+        }
+    }
+
+    mods.register("testmod") {
+        sourceSet sourceSets.testmod
+    }
+}
+
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -25,26 +61,32 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 //    modImplementation "io.vram:frex-fabric-mc118:6.0.+"
-    modCompileOnly("maven.modrinth:sodium:mc1.20.4-0.5.8")
-    modCompileOnly("maven.modrinth:indium:1.0.30+mc1.20.4")
+    modCompileOnly "maven.modrinth:sodium:mc1.21-0.6.0-beta.2-fabric"
 
     modCompileOnly "io.vram:frex-fabric:20.4.355"
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/star.accesswidener")
-    runConfigs.forEach {
-        it.property("mixin.hotSwap", "true")
-    }
-}
-
 processResources {
-    inputs.property "version", project.version
+    Map<String, ?> properties = [
+            version: version,
+            loader_version: loader_version,
+            minecraft_version: minecraft_version,
+    ]
+
+    properties.forEach(inputs::property)
+
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand properties
     }
+}
+
+tasks.register('testmodJar', Jar) {
+    from sourceSets.testmod.output
+    from sourceSets.testmodClient.output
+    destinationDirectory = new File(project.buildDir, "devlibs")
+    archiveClassifier = "testmod"
 }
 
 def targetJavaVersion = 17

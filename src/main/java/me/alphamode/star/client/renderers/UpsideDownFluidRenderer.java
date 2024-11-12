@@ -144,9 +144,9 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
                 northEastHeight = fluidCornerHeight(world, fluid, fluidHeight, heightNorth, heightEast, scratchPos.set(pos).move(Direction.NORTH).move(Direction.EAST));
             }
 
-            double chunkX = pos.getX() & 15;
-            double chunkY = pos.getY() & 15;
-            double chunkZ = pos.getZ() & 15;
+            float chunkX = pos.getX() & 15;
+            float chunkY = pos.getY() & 15;
+            float chunkZ = pos.getZ() & 15;
             float yOffset = renderBottomSide ? 0.001F : 0.0F;
             if (isFluidTheSame /*&& !isSideCovered(world, pos, fluid.getFlowDirection().getOpposite(), Math.min(Math.min(northWestHeight, southWestHeight), Math.min(southEastHeight, northEastHeight)), downState)*/) {
                 northWestHeight -= 0.001F;
@@ -198,15 +198,15 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
                 float an = upBrightness * r;
                 float ao = upBrightness * g;
                 float ap = upBrightness * b; // The code below renders the fluid slope
-                this.vertex(vertexConsumer, chunkX + 0.0, chunkY - northWestHeight + 1, chunkZ + 0.0, an, ao, ap, z, aa, am);
-                this.vertex(vertexConsumer, chunkX + 0.0, chunkY - southWestHeight + 1, chunkZ + 1.0, an, ao, ap, ab, ac, am);
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY - southEastHeight + 1, chunkZ + 1.0, an, ao, ap, ad, ae, am);
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY - northEastHeight + 1, chunkZ + 0.0, an, ao, ap, af, ag, am);
+                this.vertex(vertexConsumer, chunkX + 0.0F, chunkY - northWestHeight + 1, chunkZ + 0.0F, an, ao, ap, z, aa, am);
+                this.vertex(vertexConsumer, chunkX + 0.0F, chunkY - southWestHeight + 1, chunkZ + 1.0F, an, ao, ap, ab, ac, am);
+                this.vertex(vertexConsumer, chunkX + 1.0F, chunkY - southEastHeight + 1, chunkZ + 1.0F, an, ao, ap, ad, ae, am);
+                this.vertex(vertexConsumer, chunkX + 1.0F, chunkY - northEastHeight + 1, chunkZ + 0.0F, an, ao, ap, af, ag, am);
 //                if (fluidState.method_15756(world, pos.offset(fluid.getFlowDirection().getOpposite()))) {
-                    this.vertex(vertexConsumer, chunkX + 0.0, chunkY - northWestHeight + 1, chunkZ + 0.0, an, ao, ap, z, aa, am);
-                    this.vertex(vertexConsumer, chunkX + 1.0, chunkY - northEastHeight + 1, chunkZ + 0.0, an, ao, ap, af, ag, am);
-                    this.vertex(vertexConsumer, chunkX + 1.0, chunkY - southEastHeight + 1, chunkZ + 1.0, an, ao, ap, ad, ae, am);
-                    this.vertex(vertexConsumer, chunkX + 0.0, chunkY - southWestHeight + 1, chunkZ + 1.0, an, ao, ap, ab, ac, am);
+                    this.vertex(vertexConsumer, chunkX + 0.0F, chunkY - northWestHeight + 1, chunkZ + 0.0F, an, ao, ap, z, aa, am);
+                    this.vertex(vertexConsumer, chunkX + 1.0F, chunkY - northEastHeight + 1, chunkZ + 0.0F, an, ao, ap, af, ag, am);
+                    this.vertex(vertexConsumer, chunkX + 1.0F, chunkY - southEastHeight + 1, chunkZ + 1.0F, an, ao, ap, ad, ae, am);
+                    this.vertex(vertexConsumer, chunkX + 0.0F, chunkY - southWestHeight + 1, chunkZ + 1.0F, an, ao, ap, ab, ac, am);
 //                }
             }
 
@@ -219,24 +219,24 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
                 float ac = downBrightness * r;
                 float ae = downBrightness * g;
                 float ag = downBrightness * b;
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + yOffset + 1, chunkZ, ac, ae, ag, z, af, aq);
+                this.vertex(vertexConsumer, chunkX + 1.0F, chunkY + yOffset + 1, chunkZ, ac, ae, ag, z, af, aq);
                 this.vertex(vertexConsumer, chunkX, chunkY + yOffset + 1, chunkZ, ac, ae, ag, ab, af, aq);
-                this.vertex(vertexConsumer, chunkX, chunkY + yOffset + 1, chunkZ + 1.0, ac, ae, ag, ab, ad, aq);
-                this.vertex(vertexConsumer, chunkX + 1.0, chunkY + yOffset + 1, chunkZ + 1.0, ac, ae, ag, z, ad, aq);
+                this.vertex(vertexConsumer, chunkX, chunkY + yOffset + 1, chunkZ + 1.0F, ac, ae, ag, ab, ad, aq);
+                this.vertex(vertexConsumer, chunkX + 1.0F, chunkY + yOffset + 1, chunkZ + 1.0F, ac, ae, ag, z, ad, aq);
             }
 
             int light = this.getLight(world, pos);
 
             for (Direction direction : Direction.Type.HORIZONTAL) {
                 float c1, c2;
-                double x1, z1, x2, z2;
+                float x1, z1, x2, z2;
                 boolean shouldRender;
                 switch (direction) { // Handles how each side should look when rendering
                     case NORTH:
                         c1 = northWestHeight;
                         c2 = northEastHeight;
                         x1 = chunkX;
-                        x2 = chunkX + 1.0;
+                        x2 = chunkX + 1.0F;
                         z1 = chunkZ + EPSILON;
                         z2 = chunkZ + EPSILON;
                         shouldRender = renderNorthSide;
@@ -244,10 +244,10 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
                     case SOUTH:
                         c1 = southEastHeight;
                         c2 = southWestHeight;
-                        x1 = chunkX + 1.0;
+                        x1 = chunkX + 1.0F;
                         x2 = chunkX;
-                        z1 = chunkZ + 1.0 - EPSILON;
-                        z2 = chunkZ + 1.0 - EPSILON;
+                        z1 = chunkZ + 1.0F - EPSILON;
+                        z2 = chunkZ + 1.0F - EPSILON;
                         shouldRender = renderSouthSide;
                         break;
                     case WEST:
@@ -255,17 +255,17 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
                         c2 = northWestHeight;
                         x1 = chunkX + EPSILON;
                         x2 = chunkX + EPSILON;
-                        z1 = chunkZ + 1.0;
+                        z1 = chunkZ + 1.0F;
                         z2 = chunkZ;
                         shouldRender = renderWestSide;
                         break;
                     default:
                         c1 = northEastHeight;
                         c2 = southEastHeight;
-                        x1 = chunkX + 1.0 - EPSILON;
-                        x2 = chunkX + 1.0 - EPSILON;
+                        x1 = chunkX + 1.0F - EPSILON;
+                        x2 = chunkX + 1.0F - EPSILON;
                         z1 = chunkZ;
-                        z2 = chunkZ + 1.0;
+                        z2 = chunkZ + 1.0F;
                         shouldRender = renderEastSide;
                 }
 
@@ -320,8 +320,8 @@ public class UpsideDownFluidRenderer extends StarFluidRenderer implements FluidR
         return (k > l ? k : l) | (m > n ? m : n) << 16;
     }
 
-    private void vertex(VertexConsumer vertexConsumer, double x, double y, double z, float red, float green, float blue, float u, float v, int light) {
-        vertexConsumer.vertex(x, y, z).color(red, green, blue, 1.0F).texture(u, v).light(light).normal(0.0F, 1.0F, 0.0F).next();
+    private void vertex(VertexConsumer vertexConsumer, float x, float y, float z, float red, float green, float blue, float u, float v, int light) {
+        vertexConsumer.vertex(x, y, z).color(red, green, blue, 1.0F).texture(u, v).light(light).normal(0.0F, 1.0F, 0.0F);
     }
 
     private static boolean isSideCovered(BlockView world, Direction direction, float f, BlockPos pos, BlockState state) {
